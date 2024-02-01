@@ -75,4 +75,5 @@ public class BulletHellGame extends Game implements InputProcessor {
 	public boolean scrolled(float v, float v1) {
 		return false;
 	}
+	//
 }
