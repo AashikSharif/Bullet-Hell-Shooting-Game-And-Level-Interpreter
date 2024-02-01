@@ -29,7 +29,7 @@ public class BulletHellGame extends Game {
 		batch.begin();
 		enemy_a.draw(batch);
 		batch.end();
-		//super.render();
+
 	}
 	
 	@Override
