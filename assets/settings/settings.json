@@ -1,0 +1,11 @@
+{
+  "global": {
+    "normalSpeed": 5.0,
+    "slowSpeed": 1.0,
+    "moveUp": "Up",
+    "moveDown": "Down",
+    "moveLeft": "Left",
+    "moveRight": "Right",
+    "slowMode": "Space"
+  }
+}
