@@ -2,14 +2,17 @@ package com.bullethell.game;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class enemies extends Sprite {
+public class Enemy extends Sprite {
     int type = 1;
 
     public int getType() {
         return type;
     }
-
-    public enemies(TextureRegion region) {
+    public boolean isOnScreen(){
+        // need code here
+        return true;
+    }
+    public Enemy(TextureRegion region) {
         super(region);
     }
 }
