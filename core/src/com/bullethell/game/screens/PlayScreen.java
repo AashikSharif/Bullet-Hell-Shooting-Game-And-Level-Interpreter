@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.bullethell.game.BulletHellGame;
@@ -15,12 +16,14 @@ public class PlayScreen implements Screen, InputProcessor {
     private Texture texture;
     private Viewport viewport;
     private OrthographicCamera camera;
+    public SpriteBatch batch;
 
     public PlayScreen(BulletHellGame game) {
         this.game = game;
         camera = new OrthographicCamera();
         texture = new Texture("badlogic.jpg");
         viewport = new FitViewport(800, 480, camera);
+        batch = new SpriteBatch();
     }
 
     @Override
@@ -30,10 +33,10 @@ public class PlayScreen implements Screen, InputProcessor {
     public void render(float v) {
         Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        game.batch.setProjectionMatrix(camera.combined);
-        game.batch.begin();
-        game.batch.draw(texture, 0, 0);
-        game.batch.end();
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        batch.draw(texture, 0, 0);
+        batch.end();
     }
 
     @Override
