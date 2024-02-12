@@ -1,61 +1,45 @@
 package com.bullethell.game.entities;
 
-import com.badlogic.gdx.InputProcessor;
-import com.bullethell.game.settings.PlayerSettings;
+import com.bullethell.game.controllers.IControllable;
 
-public class Player extends Entity implements InputProcessor {
-    PlayerSettings playerSettings;
-    public Player(float x, float y, PlayerSettings playerSettings) {
+public class Player extends Entity implements IControllable {
+    boolean isSlow = false;
+    public Player(float x, float y) {
         super(x, y, "player.png");
-        this.playerSettings = playerSettings;
     }
 
-    public void update (float dT) {
-        super.update(dT);
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        return false;
+    public void update () {
+        super.update();
     }
 
     @Override
-    public boolean keyUp(int keycode) {
-        return false;
+    public void shoot() {
+
     }
 
     @Override
-    public boolean keyTyped(char character) {
-        return false;
+    public void moveUp(float speedFactor) {
+        this.position.y += speedFactor;
     }
 
     @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        return false;
+    public void moveDown(float speedFactor) {
+        this.position.y -= speedFactor;
     }
 
     @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
+    public void moveLeft(float speedFactor) {
+        this.position.x -= speedFactor;
     }
 
     @Override
-    public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
-        return false;
+    public void moveRight(float speedFactor) {
+        this.position.x += speedFactor;
     }
 
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
 
     @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(float amountX, float amountY) {
-        return false;
+    public void slowMode(boolean isSlow) {
+        this.isSlow = isSlow;
     }
 }

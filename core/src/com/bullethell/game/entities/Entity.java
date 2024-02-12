@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public abstract class Entity {
     protected Vector2 position;
-    protected Sprite sprite;
+    public Sprite sprite;
 
     public Entity (float x, float y, String texturePath) {
         this.position = new Vector2(x, y);
@@ -17,13 +17,13 @@ public abstract class Entity {
         this.sprite.setPosition(x, y);
     }
 
-    public void update (float dT) {
+    public void update () {
         this.sprite.setPosition(position.x, position.y);
     }
 
-    public void render (SpriteBatch spriteBatch) {
-        sprite.draw(spriteBatch);
-    }
+//    public void render (SpriteBatch spriteBatch) {
+//        sprite.draw(spriteBatch);
+//    }
 
     public Vector2 getPosition() {
         return position;
