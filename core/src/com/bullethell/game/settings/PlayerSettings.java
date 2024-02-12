@@ -10,4 +10,32 @@ public class PlayerSettings {
     private String slowMode;
 
     public PlayerSettings () {}
+
+    public float getNormalSpeed() {
+        return normalSpeed;
+    }
+
+    public float getSlowSpeed() {
+        return slowSpeed;
+    }
+
+    public String getMoveUp() {
+        return moveUp;
+    }
+
+    public String getMoveDown() {
+        return moveDown;
+    }
+
+    public String getMoveLeft() {
+        return moveLeft;
+    }
+
+    public String getMoveRight() {
+        return moveRight;
+    }
+
+    public String getSlowMode() {
+        return slowMode;
+    }
 }
