@@ -6,7 +6,8 @@
     "gruntB": "typeB.png",
     "midBoss": "midBoss.png",
     "finalBoss": "finalBoss.png",
-    "background": "space_background.png"
+    "background": "space_background.png",
+    "bullet": "bullet.png"
   },
   "playerSettings": {
     "normalSpeed": 5.0,
@@ -15,6 +16,7 @@
     "moveDown": "Down",
     "moveLeft": "Left",
     "moveRight": "Right",
-    "slowMode": "Space"
+    "slowMode": "Space",
+    "shoot": "S"
   }
 }

@@ -8,6 +8,7 @@ public class PlayerSettings {
     private String moveLeft;
     private String moveRight;
     private String slowMode;
+    private String shoot;
 
     public PlayerSettings () {}
 
@@ -37,5 +38,9 @@ public class PlayerSettings {
 
     public String getSlowMode() {
         return slowMode;
+    }
+
+    public String getShoot() {
+        return shoot;
     }
 }
