@@ -1,11 +1,13 @@
 package com.bullethell.game.entities;
 
 import com.bullethell.game.controllers.IControllable;
+import com.bullethell.game.controllers.IShootable;
+import com.bullethell.game.systems.AssetHandler;
 
-public class Player extends Entity implements IControllable {
+public class Player extends Entity implements IControllable, IShootable {
     boolean isSlow = false;
-    public Player(float x, float y) {
-        super(x, y, "player.png");
+    public Player(float x, float y, AssetHandler assetHandler) {
+        super(x, y, "player", assetHandler);
     }
 
     public void update () {
