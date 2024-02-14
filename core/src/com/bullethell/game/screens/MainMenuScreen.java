@@ -5,16 +5,13 @@ import com.badlogic.gdx.Screen;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.bullethell.game.BulletHellGame;
-import com.bullethell.game.settings.Settings;
 
 public class MainMenuScreen implements Screen {
 
@@ -40,7 +37,7 @@ public class MainMenuScreen implements Screen {
 
     }
 
-    public void loadMenu(){
+    public void loadMenu() {
         // Create a button
         TextButton startGameButton = new TextButton("Start Game", skin);
         startGameButton.setSize(200, 50);
@@ -59,11 +56,10 @@ public class MainMenuScreen implements Screen {
         // Add the button to the stage
         stage.addActor(startGameButton);
     }
+
     @Override
     public void show() {
-
     }
-
 
     @Override
     public void render(float v) {
@@ -103,14 +99,10 @@ public class MainMenuScreen implements Screen {
     }
 
     @Override
-    public void pause() {
-
-    }
+    public void pause() {}
 
     @Override
-    public void resume() {
-
-    }
+    public void resume() {}
 
     @Override
     public void hide() {
