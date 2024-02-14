@@ -22,7 +22,8 @@ public class PlayScreen implements Screen, InputProcessor {
         this.game = game;
         camera = new OrthographicCamera();
         texture = new Texture("badlogic.jpg");
-        viewport = new FitViewport(800, 480, camera);
+        //viewport = new FitViewport(800, 480, camera);
+        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
         batch = new SpriteBatch();
     }
 
