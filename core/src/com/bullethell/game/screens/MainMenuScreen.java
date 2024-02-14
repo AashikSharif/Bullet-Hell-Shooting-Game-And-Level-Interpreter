@@ -38,18 +38,18 @@ public class MainMenuScreen implements Screen {
     }
 
     public void loadMenu() {
-        // Create a button
+        
         TextButton startGameButton = new TextButton("Start Game", skin);
         startGameButton.setSize(200, 50);
         startGameButton.setPosition(Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f - 25);
 
-        // Add a listener to the button
+        
         startGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // Change to the game screen
                 fadeOut = true;
-                game.setScreen(new GameScreen(game)); // You might need to adjust this call based on your game structure
+                game.setScreen(new GameScreen(game)); 
             }
         });
 
