@@ -1,0 +1,76 @@
+﻿Bullet Hell Shooter - Level Interpreter
+Team: Alpha Potato coders
+
+
+The game has 4 stages as part of the requirement and will take upto 3 mins to complete (but it can be changed).
+
+
+*  In the first phase, players fight little grunts(typeA & typeB) from 00:00 to 00:48. These grunts have only one type of attack but different attack patterns of the same bullet. We placed the easy phase at the beginning to familiarize the user with game controls.
+
+
+* During the second phase, the mid boss appears at 00:48, causing a change in the stage background and BGM to tense music. The mid boss moves in a certain way and uses complex strikes. Before facing the mid boss, the player gains a power-up to perform a powerful attack or for defense of its health with a cooldown time. If the player does not defeat the boss by 01:15, it will explode and the game ends.
+
+
+*  In the third phase, more grants and powerful grants appear between 01:15 and 01:32. The stage and BGM remain the same as the first phase. Powerful grunts have two types of attacks and are more difficult to eliminate than smaller grants (mostly TypeB). Each grunts are destroyed once their health is over(the same applies to grunts in phase1). 
+
+
+* In the last phase, the boss appears at 01:32, the stage background changes, and the music changes again(maybe a serious tone). Before battling the boss, the player can use the power-ups that were collected when defeating the grunts in phase 1 and 2. The power ups like used for the 2nd phase, can be used here to kill the enemy at faster rate or can be used to defend itself. However, there is a cooldown time between each powerup use, each power-up that is being used is time-limited. If the player didn’t defeat the boss before 3:00 mins then the boss explodes, and the game is over. If a player wins by defeating the boss, the game ends and the high score is updated. (harder levels are unlocked).
+
+
+2. For the game system:
+* The highest score will be saved and shown indefinitely, even if the game is terminated.
+* The effect of special attacks(enemy): The final boss here will be doing different pattern movements and different attacks as well. Some special-attack if collided by the player (can freeze the player for a while from moving).
+*  Health-powerup: Full refill/partial(harder mode) refill of health of player.
+*  multi-bullets: When the player gains this power, the bullets are doubled or tripled for a specific time-period (say like 10 secs). 
+* Shield: Protects player from enemy attacks, limited to time-period
+* Screen-blast: Can destroy grunts (irrespective of types, and remove all bullets from the screen). Can be used when it is overwhelming for the player to play. 
+* Save Feature: The player once completed has the option to save the levels, if lost in the next level, can use the savepoint to start the same level again. The player can also choose to delete or replace the save point or can start the new game.
+* Calculation of score - The below scoring system applies:
+Graze: when the player dodge the bullet really close then the player will get some extra score(each bullet 500 points).
+Time: when the player finishes the stage and there still has extra time left then the time will add to the player score. (Left time * 2000).
+For grunts(type A): (Health - 50) 
+For grunts (type B): (Health - 150)
+Mid Boss: (Health - 500)
+Final Boss: (Health - 1000)
+- Each hit in final boss, mid-boss enemy = health_lost * 1000
+- Each hit for grunts - health_lost * 500
+Grunt Kill bonus - 5000
+Mid-Boss Kill Bonus - 10000
+Final-Boss Kill Bonus - 25000
+
+
+* Has a feature of all time high score, whenever the game opens the latest high score will be default shown on the screen.
+
+
+Game Modes:
+When the game starts, at the menu screen the player has the option to choose the difficulty level (as mentioned below), before starting the game.
+
+
+Easy - default health of the enemies (50, 150, 500, 1000)
+Medium - 100% increase in enemy health
+Hard - 100% increase in enemy health and half of player health (optional idea: less power-ups)
+
+
+
+Music:
+* For every change in enemy type (i.e. phase of the game), there will be different space related music.
+* There would be a tune for player shooting the bullets.
+
+
+Cheat Modes:
+* Cheat commands for getting power ups (all 4 power ups). 
+* Switching it to easy mode.
+* Resetting timer of level.
+* Cheat code to jump directly to different levels.
+
+
+Difficulty levels: 
+When the game starts, at the menu screen the player has the option to choose the difficulty level (as mentioned below), before starting the game.
+
+Easy - default health of the enemies (50, 150, 500, 1000)
+Medium - 100% increase in enemy health
+Hard - 100% increase in enemy health and half of player health (optional idea: less power-ups)
+
+
+Game Configurations: 
+* We will be adding json format for the game to configure multiple attributes that runs the game (eg: speed, health, power-ups, names, music, sprites, enemy counts, patterns, etc)
