@@ -6,6 +6,7 @@ import com.bullethell.game.systems.AssetHandler;
 public class Bullet extends Entity {
     private Vector2 velocity;
     private int damage;
+
     public Bullet(float x, float y, String entity, Vector2 velocity, int damage, AssetHandler assetHandler) {
         super(x, y, entity, assetHandler);
         this.velocity = new Vector2(velocity);
