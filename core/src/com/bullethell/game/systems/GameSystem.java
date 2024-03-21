@@ -37,7 +37,6 @@ public class GameSystem {
 
     private float timeInSeconds = 0f;
 
-    private int x = 1;
 
     public GameSystem() {
     }

@@ -1,7 +1,6 @@
 package com.bullethell.game.entities;
 
 import com.bullethell.game.systems.AssetHandler;
-import com.badlogic.gdx.math.Rectangle;
 
 public class Enemy extends Entity {
     private int health;
