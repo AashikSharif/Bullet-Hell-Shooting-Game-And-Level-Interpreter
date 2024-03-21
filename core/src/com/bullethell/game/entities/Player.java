@@ -6,8 +6,8 @@ import com.bullethell.game.systems.AssetHandler;
 
 public class Player extends Entity implements IControllable, IShootable {
     boolean isSlow = false;
-    private static final float HITBOX_WIDTH = 5;
-    private static final float HITBOX_HEIGHT = 5;
+    private static final float HITBOX_WIDTH = 122;
+    private static final float HITBOX_HEIGHT = 119;
 
     public Player(float x, float y, AssetHandler assetHandler) {
         super(x, y, "player", assetHandler);

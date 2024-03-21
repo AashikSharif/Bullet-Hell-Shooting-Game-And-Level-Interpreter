@@ -37,6 +37,8 @@ public class GameSystem {
 
     private float timeInSeconds = 0f;
 
+    private int x = 1;
+
     public GameSystem() {
     }
 
@@ -71,8 +73,43 @@ public class GameSystem {
         playerController.listen(playerBullets, assetHandler, time);
         updatePlayerBullets();
         moveEnemies(time);
+        checkPlayerCollision();
+        checkBulletCollision();
     }
-
+    private void checkPlayerCollision(){
+        List<Enemy> allEnemies = new ArrayList<>();
+        enemyList.values().forEach(allEnemies::addAll);
+        Iterator<Enemy> enemyIterator = allEnemies.iterator();
+        while(enemyIterator.hasNext()){
+            Enemy enemy = enemyIterator.next();
+            if(player.getHitbox().overlaps(enemy.getHitbox())){
+                System.out.println("player and enemy have collision!");
+                enemyIterator.remove();
+                break;
+            }
+        }
+    }
+    private void checkBulletCollision(){
+        for(Iterator<Bullet> bulletIterator = playerBullets.iterator(); bulletIterator.hasNext();){
+            Bullet bullet = bulletIterator.next();
+            boolean bulletRemoved = false;
+            for(List<Enemy> enemies : enemyList.values()){
+                for(Iterator<Enemy> enemyIterator = enemies.iterator(); enemyIterator.hasNext();){
+                    Enemy enemy = enemyIterator.next();
+                    if(bullet.getHitbox().overlaps(enemy.getHitbox())){
+                        System.out.println("Bullet hit detected!");
+                        bulletIterator.remove();
+                        enemyIterator.remove();
+                        bulletRemoved = true;
+                        break;
+                    }
+                }
+                if(bulletRemoved){
+                    break;
+                }
+            }
+        }
+    }
     public void render(SpriteBatch spriteBatch, float time) {
         // combined renders
         update(time);
