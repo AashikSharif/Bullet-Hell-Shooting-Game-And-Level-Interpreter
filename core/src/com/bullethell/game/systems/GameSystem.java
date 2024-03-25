@@ -3,6 +3,8 @@ package com.bullethell.game.systems;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
+import com.bullethell.game.Patterns.Factory.*;
 import com.bullethell.game.controllers.MovementController;
 import com.bullethell.game.controllers.PlayerController;
 import com.bullethell.game.entities.Bullet;
@@ -36,17 +38,27 @@ public class GameSystem {
     private MovementController mc;
 
     private float timeInSeconds = 0f;
-
+    private EntityFactory playerFactory;
+    private EntityFactory bulletFactory;
+    private EntityFactory gruntFactory;
+    private EntityFactory bossFactory;
 
     public GameSystem() {
+        playerFactory = new PlayerFactory();
+        bulletFactory = new BulletFactory();
+        gruntFactory = new GruntFactory();
+        bossFactory = new BossFactory();
     }
 
     public void init() {
         loadSettings();
         assetHandler.load(settings.getAssets());
 
+
         enemyList = new HashMap<>();
-        player = new Player((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler);
+        // Create player using factory
+        player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler,"Player", new Vector2(), 0);
+        //player = new Player((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler);
         playerBullets = new ArrayList<>();
         playerController = new PlayerController(player, settings.getPlayerSettings());
 
@@ -133,6 +145,7 @@ public class GameSystem {
         if (enemies != null && !enemies.isEmpty()) {
             for (Enemy enemy : enemies) {
                 mc.update(time);
+
             }
         }
     }
@@ -202,7 +215,8 @@ public class GameSystem {
 
                 float yPosition = Gdx.graphics.getHeight() + (i * 75);
 
-                Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
+                //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
+                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0);
                 enemies.add(enemy);
 
 
@@ -237,7 +251,8 @@ public class GameSystem {
 
                 float yPosition = Gdx.graphics.getHeight() + (i * 75);
 
-                Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
+                //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
+                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0);
                 enemies.add(enemy);
 
 
@@ -269,7 +284,8 @@ public class GameSystem {
 
                 float yPosition = Gdx.graphics.getHeight();
 
-                Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
+                //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
+                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0);
                 enemies.add(enemy);
 
                 mq.addMovement(new TargetedMovement(movements.moveTo("screenHalf"), 50));
@@ -297,7 +313,8 @@ public class GameSystem {
 
                 float yPosition = Gdx.graphics.getHeight();
 
-                Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
+                //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
+                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0);
                 enemies.add(enemy);
 
                 mq.addMovement(new TargetedMovement(movements.moveTo("screenHalf"), 50));

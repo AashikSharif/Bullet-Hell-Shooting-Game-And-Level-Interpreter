@@ -65,7 +65,7 @@ public class MainMenuScreen implements Screen {
     public void render(float v) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         game.batch.begin();
-        game.batch.draw(background, 0, 0, 836, 820);
+        game.batch.draw(background, 0, 0, 1280, 720);
         game.batch.end();
         // Check if fading out
         if (fadeOut) {
