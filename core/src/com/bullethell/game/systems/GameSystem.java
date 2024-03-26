@@ -1,8 +1,10 @@
 package com.bullethell.game.systems;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.Patterns.Factory.*;
 import com.bullethell.game.controllers.MovementController;
@@ -125,7 +127,7 @@ public class GameSystem {
         // combined renders
         update(time);
         renderBackground(spriteBatch);
-        renderEntity(spriteBatch, player); // render player
+        renderEntity(spriteBatch, player, true); // render player
         renderEnemies(spriteBatch, time);
         renderPlayerBullets(spriteBatch);
     }
@@ -150,8 +152,27 @@ public class GameSystem {
         }
     }
 
-    private void renderEntity(SpriteBatch spriteBatch, Entity entity) {
+    private void renderEntity(SpriteBatch spriteBatch, Entity entity, boolean renderHitBox) {
         spriteBatch.draw(entity.sprite, entity.sprite.getX(), entity.sprite.getY());
+        if (renderHitBox) {
+            // End the sprite batch before starting shape rendering
+            spriteBatch.end();
+
+            entity.shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            entity.shapeRenderer.setColor(Color.BLUE);
+
+            // Use the hitbox's position and size for rendering
+            entity.shapeRenderer.rect(
+                    entity.getHitbox().x,
+                    entity.getHitbox().y,
+                    entity.getHitbox().width,
+                    entity.getHitbox().height
+            );
+
+            entity.shapeRenderer.end();
+
+            spriteBatch.begin();
+        }
     }
 
     private void renderBackground(SpriteBatch spriteBatch) {
@@ -171,7 +192,7 @@ public class GameSystem {
         }
 
         for (Enemy enemy : enemies) {
-            renderEntity(spriteBatch, enemy);
+            renderEntity(spriteBatch, enemy, true);
         }
     }
 
@@ -182,7 +203,7 @@ public class GameSystem {
 
     private void renderPlayerBullets(SpriteBatch spriteBatch) {
         for (Bullet bullet : playerBullets) {
-            renderEntity(spriteBatch, bullet);
+            renderEntity(spriteBatch, bullet, true);
         }
     }
 

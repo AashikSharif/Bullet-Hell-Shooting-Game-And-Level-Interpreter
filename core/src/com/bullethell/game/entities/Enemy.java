@@ -6,6 +6,9 @@ public class Enemy extends Entity {
     private int health;
     private String type;
 
+    private static final float HITBOX_WIDTH = 30;
+    private static final float HITBOX_HEIGHT = 30;
+
     public Enemy(float x, float y, AssetHandler assetHandler, String type) {
         super(x, y, type, assetHandler);
         this.health = 100; // temporary, get from config later
