@@ -35,6 +35,8 @@ public class GameSystem {
 
     private List<Bullet> playerBullets;
 
+    private List<Bullet> enemyBullets = new ArrayList<>();
+
     private Map<String, ArrayList<Enemy>> enemyList;
 
     private MovementController mc;
@@ -88,6 +90,9 @@ public class GameSystem {
         moveEnemies(time);
         checkPlayerCollision();
         checkBulletCollision();
+        checkEnemyBulletPlayerCollision();
+        updateEnemyBullets(time);
+        enemyShoot(time);
     }
     private void checkPlayerCollision(){
         List<Enemy> allEnemies = new ArrayList<>();
@@ -123,6 +128,57 @@ public class GameSystem {
             }
         }
     }
+    private void checkEnemyBulletPlayerCollision() {
+        Iterator<Bullet> bulletIterator = enemyBullets.iterator();
+        while (bulletIterator.hasNext()) {
+            Bullet bullet = bulletIterator.next();
+            if (bullet.getHitbox().overlaps(player.getHitbox())) {
+                System.out.println("get hit!");
+                bulletIterator.remove();
+            }
+        }
+    }
+    private void enemyShoot(float deltaTime) {
+        for (ArrayList<Enemy> enemies : enemyList.values()) {
+            for (Enemy enemy : enemies) {
+                boolean isEnemyOnScreen = enemy.getPosition().y + enemy.sprite.getHeight() > 0 &&
+                        enemy.getPosition().y < 720 &&
+                        enemy.getPosition().x + enemy.sprite.getWidth() > 0 &&
+                        enemy.getPosition().x < 1280;
+                if (isEnemyOnScreen && enemy.isReadyToShoot(deltaTime)) {
+                    Vector2 direction = new Vector2(
+                            player.getPosition().x + player.sprite.getWidth() / 2 - (enemy.getPosition().x + enemy.sprite.getWidth() / 2),
+                            player.getPosition().y + player.sprite.getHeight() / 2 - (enemy.getPosition().y + enemy.sprite.getHeight() / 2)
+                    ).nor();
+
+                    float bulletSpeed = 3;
+                    Vector2 velocity = direction.scl(bulletSpeed);
+
+                    float bulletX = enemy.getPosition().x + (enemy.sprite.getWidth() / 2) - Bullet.HITBOX_WIDTH / 2;
+                    float bulletY = enemy.getPosition().y - Bullet.HITBOX_HEIGHT;
+                    Bullet enemyBullet = new Bullet(bulletX, bulletY, "bullet", velocity, 1, assetHandler);
+
+                    this.enemyBullets.add(enemyBullet);
+                    enemy.resetShootTimer();
+                }
+            }
+        }
+    }
+    private void updateEnemyBullets(float deltaTime) {
+        Iterator<Bullet> iterator = enemyBullets.iterator();
+        while(iterator.hasNext()) {
+            Bullet bullet = iterator.next();
+            bullet.update();
+            if (bullet.getPosition().y < 0 || bullet.getPosition().y > Gdx.graphics.getHeight()) {
+                iterator.remove();
+            }
+        }
+    }
+    private void renderEnemyBullets(SpriteBatch spriteBatch) {
+        for (Bullet bullet : enemyBullets) {
+            spriteBatch.draw(bullet.sprite, bullet.getPosition().x, bullet.getPosition().y);
+        }
+    }
     public void render(SpriteBatch spriteBatch, float time) {
         // combined renders
         update(time);
@@ -130,6 +186,7 @@ public class GameSystem {
         renderEntity(spriteBatch, player, true); // render player
         renderEnemies(spriteBatch, time);
         renderPlayerBullets(spriteBatch);
+        renderEnemyBullets(spriteBatch);
     }
 
     private void moveEnemies(float time) {

@@ -7,8 +7,8 @@ public class Bullet extends Entity {
     private Vector2 velocity;
     private int damage;
 
-    private static final float HITBOX_WIDTH = 30;
-    private static final float HITBOX_HEIGHT = 30;
+    public static final float HITBOX_WIDTH = 30;
+    public static final float HITBOX_HEIGHT = 30;
 
     public Bullet(float x, float y, String entity, Vector2 velocity, int damage, AssetHandler assetHandler) {
         super(x, y, entity, assetHandler);
