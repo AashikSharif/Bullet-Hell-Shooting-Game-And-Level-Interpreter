@@ -25,7 +25,7 @@ import java.util.*;
 public class GameSystem {
     private Settings settings;
 
-    private AssetHandler assetHandler = new AssetHandler();
+    private final AssetHandler assetHandler = new AssetHandler();
 
     private Texture background;
 
@@ -73,7 +73,7 @@ public class GameSystem {
     public void update(float time) {
         timeInSeconds += time;
         if (timeInSeconds <= 48 && enemyList.get("gruntA") == null) {
-            addEnemies(14, "gruntA");
+            addEnemies(20, "gruntA");
         } else if (timeInSeconds > 48 && timeInSeconds <= 75 && enemyList.get("midBoss") == null) {
             enemyList.remove("gruntA");
             addEnemies(1, "midBoss");
@@ -358,7 +358,7 @@ public class GameSystem {
                 MovementQueue mq = new MovementQueue();
                 Movements movements = new Movements();
 
-                float xPosition = Gdx.graphics.getWidth() / 2;
+                float xPosition = (float) Gdx.graphics.getWidth() / 2;
 
                 float yPosition = Gdx.graphics.getHeight();
 
@@ -387,7 +387,7 @@ public class GameSystem {
                 MovementQueue mq = new MovementQueue();
                 Movements movements = new Movements();
 
-                float xPosition = Gdx.graphics.getWidth() / 2;
+                float xPosition = (float) Gdx.graphics.getWidth() / 2;
 
                 float yPosition = Gdx.graphics.getHeight();
 

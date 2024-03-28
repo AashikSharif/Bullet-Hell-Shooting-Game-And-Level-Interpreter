@@ -3,7 +3,9 @@ package com.bullethell.game.utils;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.JsonWriter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class JsonUtil {
     public String read(String jsonFile) {
@@ -26,10 +28,14 @@ public class JsonUtil {
         }
     }
 
-    public void save (Object obj, String jsonFile) {
-        Json json = new Json();
-        String jsonStr = json.toJson(obj);
-        FileHandle file = Gdx.files.local(jsonFile);
-        file.writeString(jsonStr, false);
+    public void save(Object obj, String jsonFile) {
+        try {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            String jsonStr = gson.toJson(obj);
+            FileHandle file = Gdx.files.local(jsonFile);
+            file.writeString(jsonStr, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

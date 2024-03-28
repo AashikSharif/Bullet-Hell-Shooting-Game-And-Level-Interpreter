@@ -12,6 +12,7 @@ public class DesktopLauncher {
 		config.setTitle("Bullet Hell");
 		config.setWindowedMode(1280, 720);
 		config.useVsync(true);
+		config.setResizable(false); //window cannot be resized
 		new Lwjgl3Application(new BulletHellGame(), config);
 	}
 }

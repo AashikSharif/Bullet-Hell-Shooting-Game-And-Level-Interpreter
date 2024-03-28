@@ -17,7 +17,8 @@ public class CircularMovement implements MovementStrategy {
 
     @Override
     public void updatePosition(Enemy enemy, float deltaTime) {
-        angle += angularVelocity * deltaTime;
+        //angle += angularVelocity * deltaTime;
+        angle = (angle + angularVelocity * deltaTime) % (float)(2 * Math.PI);
         float x = centerX + radius * (float)Math.cos(angle);
         float y = centerY + radius * (float)Math.sin(angle);
         enemy.setPosition(new Vector2(x, y));

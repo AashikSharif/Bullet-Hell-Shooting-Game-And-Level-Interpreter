@@ -1,7 +1,7 @@
 package com.bullethell.game.settings;
 
 public class GlobalSettings {
-    private float normalSpeed, slowSpeed;
+//    private float normalSpeed, slowSpeed;
 
     private String moveUp;
     private String moveDown;
@@ -11,21 +11,6 @@ public class GlobalSettings {
     private String slowMode;
 
     public GlobalSettings () {}
-    public float getNormalSpeed() {
-        return normalSpeed;
-    }
-
-    public void setNormalSpeed(float normalSpeed) {
-        this.normalSpeed = normalSpeed;
-    }
-
-    public float getSlowSpeed() {
-        return slowSpeed;
-    }
-
-    public void setSlowSpeed(float slowSpeed) {
-        this.slowSpeed = slowSpeed;
-    }
 
     public String getMoveUp() {
         return moveUp;
