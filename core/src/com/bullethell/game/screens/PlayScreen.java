@@ -13,9 +13,9 @@ import com.bullethell.game.BulletHellGame;
 
 public class PlayScreen implements Screen, InputProcessor {
     private BulletHellGame game;
-    private Texture texture;
-    private Viewport viewport;
-    private OrthographicCamera camera;
+    private final Texture texture;
+    private final Viewport viewport;
+    private final OrthographicCamera camera;
     public SpriteBatch batch;
 
     public PlayScreen(BulletHellGame game) {

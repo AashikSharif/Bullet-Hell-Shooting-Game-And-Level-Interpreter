@@ -28,7 +28,7 @@ public class MainMenuScreen implements Screen {
     public MainMenuScreen(BulletHellGame game) {
         this.game = game;
         //this.background = new Texture("space_background.png");
-        this.background = new Texture("menu2.jpeg");
+        this.background = new Texture("drake.jpeg");
         this.stage = new Stage(new ScreenViewport());
         this.skin = new Skin(Gdx.files.internal("skin/glassy/skin/glassy-ui.json"));
 
@@ -46,7 +46,7 @@ public class MainMenuScreen implements Screen {
 
         //start button
         final TextButton startGameButton = new TextButton("Start", skin,"small");
-        startGameButton.setSize(size*5, size*2);
+        startGameButton.setSize(size*4, size);
         startGameButton.setPosition((windowWidth - startGameButton.getWidth()) / 2, windowHeight - windowHeight/4);
         startGameButton.addListener(new ClickListener() {
 
@@ -62,7 +62,7 @@ public class MainMenuScreen implements Screen {
 
         //options button
         final TextButton optionsButton = new TextButton("Options",skin,"small");
-        optionsButton.setSize(size*7, size*2);
+        optionsButton.setSize(size*4, size);
         optionsButton.setPosition((windowWidth - optionsButton.getWidth())/2,windowHeight-windowHeight/2.4f);
         optionsButton.addListener(new ClickListener(){
             @Override
@@ -75,7 +75,7 @@ public class MainMenuScreen implements Screen {
 
         //exit button
         final TextButton exitButton = new TextButton("Exit",skin,"small");
-        exitButton.setSize(size*3,size*2);
+        exitButton.setSize(size*4,size);
         exitButton.setPosition((windowWidth - exitButton.getWidth())/2, windowHeight - windowHeight/1.7f);
         exitButton.addListener(new ClickListener(){
             @Override

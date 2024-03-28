@@ -3,12 +3,12 @@
   "playerSettings": {
     "normalSpeed": 5.0,
     "slowSpeed": 1.0,
-    "moveUp": "Up",
-    "moveDown": "Down",
-    "moveLeft": "Left",
-    "moveRight": "Right",
-    "slowMode": "Space",
-    "shoot": "S"
+    "moveUp": "W",
+    "moveDown": "S",
+    "moveLeft": "A",
+    "moveRight": "D",
+    "slowMode": "L-Shift",
+    "shoot": "Space"
   },
   "assets": {
     "player": "player.png",
