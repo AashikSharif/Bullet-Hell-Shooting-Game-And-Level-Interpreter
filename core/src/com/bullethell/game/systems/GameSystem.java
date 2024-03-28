@@ -1,8 +1,10 @@
 package com.bullethell.game.systems;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.Patterns.Factory.*;
 import com.bullethell.game.controllers.MovementController;
@@ -32,6 +34,8 @@ public class GameSystem {
     private PlayerController playerController;
 
     private List<Bullet> playerBullets;
+
+    private List<Bullet> enemyBullets = new ArrayList<>();
 
     private Map<String, ArrayList<Enemy>> enemyList;
 
@@ -86,6 +90,9 @@ public class GameSystem {
         moveEnemies(time);
         checkPlayerCollision();
         checkBulletCollision();
+        checkEnemyBulletPlayerCollision();
+        updateEnemyBullets(time);
+        enemyShoot(time);
     }
     private void checkPlayerCollision(){
         List<Enemy> allEnemies = new ArrayList<>();
@@ -121,13 +128,65 @@ public class GameSystem {
             }
         }
     }
+    private void checkEnemyBulletPlayerCollision() {
+        Iterator<Bullet> bulletIterator = enemyBullets.iterator();
+        while (bulletIterator.hasNext()) {
+            Bullet bullet = bulletIterator.next();
+            if (bullet.getHitbox().overlaps(player.getHitbox())) {
+                System.out.println("get hit!");
+                bulletIterator.remove();
+            }
+        }
+    }
+    private void enemyShoot(float deltaTime) {
+        for (ArrayList<Enemy> enemies : enemyList.values()) {
+            for (Enemy enemy : enemies) {
+                boolean isEnemyOnScreen = enemy.getPosition().y + enemy.sprite.getHeight() > 0 &&
+                        enemy.getPosition().y < 720 &&
+                        enemy.getPosition().x + enemy.sprite.getWidth() > 0 &&
+                        enemy.getPosition().x < 1280;
+                if (isEnemyOnScreen && enemy.isReadyToShoot(deltaTime)) {
+                    Vector2 direction = new Vector2(
+                            player.getPosition().x + player.sprite.getWidth() / 2 - (enemy.getPosition().x + enemy.sprite.getWidth() / 2),
+                            player.getPosition().y + player.sprite.getHeight() / 2 - (enemy.getPosition().y + enemy.sprite.getHeight() / 2)
+                    ).nor();
+
+                    float bulletSpeed = 3;
+                    Vector2 velocity = direction.scl(bulletSpeed);
+
+                    float bulletX = enemy.getPosition().x + (enemy.sprite.getWidth() / 2) - Bullet.HITBOX_WIDTH / 2;
+                    float bulletY = enemy.getPosition().y - Bullet.HITBOX_HEIGHT;
+                    Bullet enemyBullet = new Bullet(bulletX, bulletY, "bullet", velocity, 1, assetHandler);
+
+                    this.enemyBullets.add(enemyBullet);
+                    enemy.resetShootTimer();
+                }
+            }
+        }
+    }
+    private void updateEnemyBullets(float deltaTime) {
+        Iterator<Bullet> iterator = enemyBullets.iterator();
+        while(iterator.hasNext()) {
+            Bullet bullet = iterator.next();
+            bullet.update();
+            if (bullet.getPosition().y < 0 || bullet.getPosition().y > Gdx.graphics.getHeight()) {
+                iterator.remove();
+            }
+        }
+    }
+    private void renderEnemyBullets(SpriteBatch spriteBatch) {
+        for (Bullet bullet : enemyBullets) {
+            spriteBatch.draw(bullet.sprite, bullet.getPosition().x, bullet.getPosition().y);
+        }
+    }
     public void render(SpriteBatch spriteBatch, float time) {
         // combined renders
         update(time);
         renderBackground(spriteBatch);
-        renderEntity(spriteBatch, player); // render player
+        renderEntity(spriteBatch, player, true); // render player
         renderEnemies(spriteBatch, time);
         renderPlayerBullets(spriteBatch);
+        renderEnemyBullets(spriteBatch);
     }
 
     private void moveEnemies(float time) {
@@ -150,8 +209,27 @@ public class GameSystem {
         }
     }
 
-    private void renderEntity(SpriteBatch spriteBatch, Entity entity) {
+    private void renderEntity(SpriteBatch spriteBatch, Entity entity, boolean renderHitBox) {
         spriteBatch.draw(entity.sprite, entity.sprite.getX(), entity.sprite.getY());
+        if (renderHitBox) {
+            // End the sprite batch before starting shape rendering
+            spriteBatch.end();
+
+            entity.shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            entity.shapeRenderer.setColor(Color.BLUE);
+
+            // Use the hitbox's position and size for rendering
+            entity.shapeRenderer.rect(
+                    entity.getHitbox().x,
+                    entity.getHitbox().y,
+                    entity.getHitbox().width,
+                    entity.getHitbox().height
+            );
+
+            entity.shapeRenderer.end();
+
+            spriteBatch.begin();
+        }
     }
 
     private void renderBackground(SpriteBatch spriteBatch) {
@@ -171,7 +249,7 @@ public class GameSystem {
         }
 
         for (Enemy enemy : enemies) {
-            renderEntity(spriteBatch, enemy);
+            renderEntity(spriteBatch, enemy, true);
         }
     }
 
@@ -182,7 +260,7 @@ public class GameSystem {
 
     private void renderPlayerBullets(SpriteBatch spriteBatch) {
         for (Bullet bullet : playerBullets) {
-            renderEntity(spriteBatch, bullet);
+            renderEntity(spriteBatch, bullet, true);
         }
     }
 
