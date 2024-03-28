@@ -1,5 +1,7 @@
 package com.bullethell.game.entities;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.controllers.IControllable;
 import com.bullethell.game.controllers.IShootable;
 import com.bullethell.game.systems.AssetHandler;
@@ -9,14 +11,12 @@ public class Player extends Entity implements IControllable, IShootable {
     private static final float HITBOX_WIDTH = 30;
     private static final float HITBOX_HEIGHT = 30;
 
-    public Player(float x, float y, AssetHandler assetHandler) {
+    private int lives;
+
+
+    public Player(float x, float y, AssetHandler assetHandler, int lives) {
         super(x, y, "player", assetHandler);
-//        hitbox.setWidth(HITBOX_WIDTH);
-//        hitbox.setHeight(HITBOX_HEIGHT);
-//
-//
-//        hitbox.setPosition(x + sprite.getWidth() / 2 - HITBOX_WIDTH / 2,
-//                y + sprite.getHeight() / 2 - HITBOX_HEIGHT / 2);
+        this.lives= lives; //Initialize the lives of the player
     }
 
     public void update () {
@@ -53,4 +53,22 @@ public class Player extends Entity implements IControllable, IShootable {
     public void slowMode(boolean isSlow) {
         this.isSlow = isSlow;
     }
+
+
+    public void lostLive() {
+        lives--;
+    }
+
+    public boolean isGameOver()
+    {
+        if (lives > 0) return false;
+        return true;
+    }
+
+    public int getLives()
+    { return lives; }
+
+
+
 }
+

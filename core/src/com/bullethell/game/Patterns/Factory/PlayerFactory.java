@@ -8,8 +8,8 @@ import com.bullethell.game.systems.AssetHandler;
 public class PlayerFactory implements EntityFactory
 {
     @Override
-    public Player createEntity(float x, float y, AssetHandler assetHandler, String type, Vector2 velocity, int damage)
+    public Player createEntity(float x, float y, AssetHandler assetHandler, String type, Vector2 velocity, int damage, int lives)
     {
-        return new Player(x,y,assetHandler);
+        return new Player(x,y,assetHandler, lives /* Player Lives*/);
     }
 }

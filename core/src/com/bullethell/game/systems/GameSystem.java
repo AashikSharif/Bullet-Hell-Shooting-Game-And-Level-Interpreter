@@ -21,6 +21,7 @@ import com.bullethell.game.settings.Settings;
 import com.bullethell.game.utils.JsonUtil;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class GameSystem {
     private Settings settings;
@@ -46,6 +47,7 @@ public class GameSystem {
     private EntityFactory bulletFactory;
     private EntityFactory gruntFactory;
     private EntityFactory bossFactory;
+    private int level = 0;
 
     public GameSystem() {
         playerFactory = new PlayerFactory();
@@ -61,28 +63,36 @@ public class GameSystem {
 
         enemyList = new HashMap<>();
         // Create player using factory
-        player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler,"Player", new Vector2(), 0);
+        player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler,"Player", new Vector2(), 0, 5);
+        playerController = new PlayerController(player, settings.getPlayerSettings());
         //player = new Player((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler);
         playerBullets = new ArrayList<>();
-        playerController = new PlayerController(player, settings.getPlayerSettings());
+
 
         background = assetHandler.getAssetTexture("background");
         mc = new MovementController();
     }
 
-    public void update(float time) {
+    public void update(float time) throws InterruptedException {
         timeInSeconds += time;
         if (timeInSeconds <= 48 && enemyList.get("gruntA") == null) {
+            level++;
             addEnemies(20, "gruntA");
         } else if (timeInSeconds > 48 && timeInSeconds <= 75 && enemyList.get("midBoss") == null) {
+            level++;
             enemyList.remove("gruntA");
             addEnemies(1, "midBoss");
+
         } else if (timeInSeconds > 75 && timeInSeconds <= 92 && enemyList.get("gruntB") == null) {
+            level++;
             enemyList.remove("midBoss");
             addEnemies(14, "gruntB");
+
         } else if (timeInSeconds > 92 && enemyList.get("finalBoss") == null) {
+            level++;
             enemyList.remove("gruntB");
             addEnemies(1, "finalBoss");
+
         }
 
         playerController.listen(playerBullets, assetHandler, time);
@@ -94,20 +104,38 @@ public class GameSystem {
         updateEnemyBullets(time);
         enemyShoot(time);
     }
-    private void checkPlayerCollision(){
+    private void checkPlayerCollision() throws InterruptedException {
         List<Enemy> allEnemies = new ArrayList<>();
         enemyList.values().forEach(allEnemies::addAll);
         Iterator<Enemy> enemyIterator = allEnemies.iterator();
         while(enemyIterator.hasNext()){
             Enemy enemy = enemyIterator.next();
             if(player.getHitbox().overlaps(enemy.getHitbox())){
-                System.out.println("player and enemy have collision!");
+
+                player.lostLive(); //Decrement live for player
+
+                System.out.println("player and enemy have collision! Remaining Lives = " + player.getLives());
                 enemyIterator.remove();
-                break;
+
+                if ( !player.isGameOver()  ) {
+                    player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler, "Player", new Vector2(), 0, player.getLives());//Spawn player again .
+                    playerController = new PlayerController(player, settings.getPlayerSettings());
+                }
+                else if(player.isGameOver() )
+                {
+                    System.out.println("Player LOST - Game over");
+                    System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
+                }
+                else if(  level == 4 && !enemyIterator.hasNext() ) //Add winning condition
+                {
+                    System.out.println("Player won - Game over");
+                    System.exit(0);
+                }
+
             }
         }
     }
-    private void checkBulletCollision(){
+    private void checkBulletCollision(){ //Player to enemy bullet collision
         for(Iterator<Bullet> bulletIterator = playerBullets.iterator(); bulletIterator.hasNext();){
             Bullet bullet = bulletIterator.next();
             boolean bulletRemoved = false;
@@ -179,7 +207,7 @@ public class GameSystem {
             spriteBatch.draw(bullet.sprite, bullet.getPosition().x, bullet.getPosition().y);
         }
     }
-    public void render(SpriteBatch spriteBatch, float time) {
+    public void render(SpriteBatch spriteBatch, float time) throws InterruptedException {
         // combined renders
         update(time);
         renderBackground(spriteBatch);
@@ -193,7 +221,7 @@ public class GameSystem {
         ArrayList<Enemy> enemies;
         if (timeInSeconds <= 48 && enemyList.get("gruntA") != null) {
             enemies = enemyList.get("gruntA");
-        } else if (timeInSeconds > 48 && timeInSeconds <= 75) {
+        } else if(timeInSeconds > 48 && timeInSeconds <= 75) {
             enemies = enemyList.get("midBoss");
         } else if (timeInSeconds > 75 && timeInSeconds <= 92) {
             enemies = enemyList.get("gruntB");
@@ -202,10 +230,10 @@ public class GameSystem {
         }
 
         if (enemies != null && !enemies.isEmpty()) {
-            for (Enemy enemy : enemies) {
+            //for (Enemy enemy : enemies) {
                 mc.update(time);
 
-            }
+            //}
         }
     }
 
@@ -294,24 +322,24 @@ public class GameSystem {
                 float yPosition = Gdx.graphics.getHeight() + (i * 75);
 
                 //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
-                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0);
+                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
                 enemies.add(enemy);
 
 
-                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenHalf") : movements.moveTo(enemy.getPosition().x, (float) Gdx.graphics.getHeight() / 2 - 75), 10));
-                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenRight") : movements.moveTo("screenLeft"), 10));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenTop"), 10));
+                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenHalf") : movements.moveTo(enemy.getPosition().x, (float) Gdx.graphics.getHeight() / 2 - 75), 200));
+                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenRight") : movements.moveTo("screenLeft"), 200));
+                mq.addMovement(new TargetedMovement(movements.moveTo("screenTop"), 200));
 
                 float centerX = Gdx.graphics.getWidth() / 2f;
                 float centerY = Gdx.graphics.getHeight() / 2f;
                 float radius = 200f; // Adjust this value to fit your game's scale
-                float angularVelocity = 0.09f; // Complete one full circle per second
+                float angularVelocity = 0.9f; // Complete one full circle per second
 
                 if (isLeftSide) {
-                    mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 10));
-                    mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 10));
-                    mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 10), 20));
-                    mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.0001f), 14));
+                    mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 200));
+                    mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 200));
+                    mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 10), 210));
+                    mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.001f), 14));
                 }
 
                 mc.addEnemyMovement(enemy, mq);
@@ -330,24 +358,24 @@ public class GameSystem {
                 float yPosition = Gdx.graphics.getHeight() + (i * 75);
 
                 //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
-                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0);
+                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
                 enemies.add(enemy);
 
 
-                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenHalf") : movements.moveTo(enemy.getPosition().x, (float) Gdx.graphics.getHeight() / 2 - 75), 10));
-                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenRight") : movements.moveTo("screenLeft"), 10));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenTop"), 10));
+                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenHalf") : movements.moveTo(enemy.getPosition().x, (float) Gdx.graphics.getHeight() / 2 - 75), 200));
+                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenRight") : movements.moveTo("screenLeft"), 200));
+                mq.addMovement(new TargetedMovement(movements.moveTo("screenTop"), 200));
 
                 float centerX = Gdx.graphics.getWidth() / 2f;
                 float centerY = Gdx.graphics.getHeight() / 2f;
                 float radius = 200f; // Adjust this value to fit your game's scale
-                float angularVelocity = 0.09f; // Complete one full circle per second
+                float angularVelocity = 0.9f; // Complete one full circle per second
 
                 if (isLeftSide) {
-                    mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 10));
-                    mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 10));
-                    mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 10), 20));
-                    mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.0001f), 14));
+                    mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 200));
+                    mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 200));
+                    mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 10), 200));
+                    mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.001f), 14));
                 }
 
                 mc.addEnemyMovement(enemy, mq);
@@ -360,24 +388,24 @@ public class GameSystem {
 
                 float xPosition = (float) Gdx.graphics.getWidth() / 2;
 
-                float yPosition = Gdx.graphics.getHeight();
+                float yPosition =    Gdx.graphics.getHeight();
 
                 //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
-                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0);
+                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
                 enemies.add(enemy);
 
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenHalf"), 50));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 50));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenRight"), 50));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 50));
+                mq.addMovement(new TargetedMovement(movements.moveTo("screenHalf"), 200));
+                mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 200));
+                mq.addMovement(new TargetedMovement(movements.moveTo("screenRight"), 200));
+                mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 200));
 
                 float centerX = Gdx.graphics.getWidth() / 2f;
                 float centerY = Gdx.graphics.getHeight() / 2f;
                 float radius = 150f; // Adjust this value to fit your game's scale
-                float angularVelocity = 0.09f; // Complete one full circle per second
+                float angularVelocity = 0.9f; // Complete one full circle per second
 
-                mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 1), 100));
-                mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.0001f), 1));
+                mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 1), 200));
+                mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.001f), 1));
 
                 mc.addEnemyMovement(enemy, mq);
             }
@@ -392,21 +420,21 @@ public class GameSystem {
                 float yPosition = Gdx.graphics.getHeight();
 
                 //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
-                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0);
+                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
                 enemies.add(enemy);
 
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenHalf"), 50));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 50));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenRight"), 50));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 50));
+                mq.addMovement(new TargetedMovement(movements.moveTo("screenHalf"), 200));
+                mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 200));
+                mq.addMovement(new TargetedMovement(movements.moveTo("screenRight"), 200));
+                mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 200));
 
                 float centerX = Gdx.graphics.getWidth() / 2f;
                 float centerY = Gdx.graphics.getHeight() / 2f;
                 float radius = 150f; // Adjust this value to fit your game's scale
-                float angularVelocity = 0.09f; // Complete one full circle per second
+                float angularVelocity = 0.9f; // Complete one full circle per second
 
-                mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 1), 100));
-                mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.0001f), 1));
+                mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 1), 200));
+                mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.001f), 1));
 
                 mc.addEnemyMovement(enemy, mq);
             }
