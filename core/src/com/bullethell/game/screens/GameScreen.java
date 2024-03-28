@@ -45,7 +45,11 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(0, 0, 0, 1);
         batch.begin();
 
-        gameSystem.render(batch, delta);
+        try {
+            gameSystem.render(batch, delta);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         batch.end();
     }

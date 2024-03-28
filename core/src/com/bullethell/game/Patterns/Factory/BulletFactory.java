@@ -7,7 +7,7 @@ import com.bullethell.game.systems.AssetHandler;
 
 public class BulletFactory implements EntityFactory {
     @Override
-    public Entity createEntity(float x, float y, AssetHandler assetHandler, String entity, Vector2 velocity, int damage)
+    public Entity createEntity(float x, float y, AssetHandler assetHandler, String entity, Vector2 velocity, int damage, int lives)
     {
         return new Bullet(x, y, entity, velocity,damage,assetHandler);
     }

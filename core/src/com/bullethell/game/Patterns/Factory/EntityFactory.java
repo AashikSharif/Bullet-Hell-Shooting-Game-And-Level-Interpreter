@@ -7,6 +7,6 @@ import com.bullethell.game.systems.AssetHandler;
 
 public interface EntityFactory
 {
-    Entity createEntity(float x, float y, AssetHandler assetHandler, String type,Vector2 velocity, int damage);
+    Entity createEntity(float x, float y, AssetHandler assetHandler, String type,Vector2 velocity, int damage, int lives);
 
 }
