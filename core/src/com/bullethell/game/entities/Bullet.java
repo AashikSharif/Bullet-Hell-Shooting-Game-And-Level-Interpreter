@@ -4,8 +4,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.systems.AssetHandler;
 
 public class Bullet extends Entity {
-    private Vector2 velocity;
-    private int damage;
+    private final Vector2 velocity;
+    private final int damage;
 
     public static final float HITBOX_WIDTH = 30;
     public static final float HITBOX_HEIGHT = 30;

@@ -43,4 +43,37 @@ public class PlayerSettings {
     public String getShoot() {
         return shoot;
     }
+
+    public void setNormalSpeed(float normalSpeed) {
+        this.normalSpeed = normalSpeed;
+    }
+
+    public void setSlowSpeed(float slowSpeed) {
+        this.slowSpeed = slowSpeed;
+    }
+
+    public void setMoveUp(String moveUp) {
+        this.moveUp = moveUp;
+    }
+
+    public void setMoveDown(String moveDown) {
+        this.moveDown = moveDown;
+    }
+
+    public void setMoveLeft(String moveLeft) {
+        this.moveLeft = moveLeft;
+    }
+
+    public void setMoveRight(String moveRight) {
+        this.moveRight = moveRight;
+    }
+
+    public void setSlowMode(String slowMode) {
+        this.slowMode = slowMode;
+    }
+
+
+    public void setShoot(String shoot) {
+        this.shoot = shoot;
+    }
 }

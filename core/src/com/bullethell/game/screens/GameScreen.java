@@ -14,27 +14,25 @@ import com.bullethell.game.systems.GameSystem;
 
 public class GameScreen implements Screen {
     public SpriteBatch batch;
-    private Viewport viewport;
-    private OrthographicCamera camera;
+    final private Viewport viewport;
 
     public BulletHellGame game;
     public Settings settings;
-    Sprite enemySprite[];
+    Sprite[] enemySprite;
     AssetHandler assetHandler = new AssetHandler();
 
     GameSystem gameSystem;
+//    private ScoringSystem scoringSystem;
+//    private LayoutScreen bgScreen;
 
     public GameScreen(BulletHellGame game) {
         this.game = game;
         batch = new SpriteBatch();
         this.settings = game.getSettings();
         gameSystem = new GameSystem();
-
         enemySprite = new Sprite[25];
-
-        camera = new OrthographicCamera();
+        OrthographicCamera camera = new OrthographicCamera();
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
-
     }
 
     @Override
