@@ -162,7 +162,25 @@ public class GameSystem {
             Bullet bullet = bulletIterator.next();
             if (bullet.getHitbox().overlaps(player.getHitbox())) {
                 System.out.println("get hit!");
+                player.lostLive(); //Decrement live for player
                 bulletIterator.remove();
+
+                System.out.println("player and enemy bullet have collision! Remaining Lives = " + player.getLives());
+                if ( !player.isGameOver()  ) {
+                    player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler, "Player", new Vector2(), 0, player.getLives());//Spawn player again .
+                    playerController = new PlayerController(player, settings.getPlayerSettings());
+                }
+                else if(player.isGameOver() )
+                {
+                    System.out.println("Player LOST - Game over");
+                    System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
+                }
+                else if(  level == 4 && !bulletIterator.hasNext() ) //Add winning condition
+                {
+                    System.out.println("Player won - Game over");
+                    System.exit(0);
+                }
+
             }
         }
     }
@@ -322,6 +340,7 @@ public class GameSystem {
                 float yPosition = Gdx.graphics.getHeight() + (i * 75);
 
                 //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
+
                 Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
                 enemies.add(enemy);
 
