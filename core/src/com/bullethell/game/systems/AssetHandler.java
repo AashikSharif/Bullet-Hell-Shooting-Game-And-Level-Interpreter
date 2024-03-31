@@ -15,12 +15,14 @@ public class AssetHandler {
             System.out.println("Loading Asset -> " + asset.getKey());
             assetManager.load(asset.getValue(), Texture.class);
             map.put(asset.getKey(), asset.getValue());
+
             assetManager.finishLoading();
         }
     }
 
     public Texture getAssetTexture(String key) {
         String filePath = map.get(key);
+        //System.out.println("Filepath ="+key+" - "+filePath);
         if (filePath != null && assetManager.isLoaded(filePath)) {
             return assetManager.get(filePath, Texture.class);
         } else {
