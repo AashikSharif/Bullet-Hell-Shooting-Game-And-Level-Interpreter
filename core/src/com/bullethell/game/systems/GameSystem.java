@@ -29,6 +29,7 @@ public class GameSystem {
     private final AssetHandler assetHandler = new AssetHandler();
 
     private Texture background;
+    private Texture player_lives;
 
     private Player player;
 
@@ -47,6 +48,8 @@ public class GameSystem {
     private EntityFactory bulletFactory;
     private EntityFactory gruntFactory;
     private EntityFactory bossFactory;
+    boolean isCollided = false;
+    int time = 6, frames = 60,counter=0;
     private int level = 0;
 
     public GameSystem() {
@@ -68,8 +71,9 @@ public class GameSystem {
         //player = new Player((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler);
         playerBullets = new ArrayList<>();
 
-
         background = assetHandler.getAssetTexture("background");
+        player_lives = assetHandler.getAssetTexture("lives");
+
         mc = new MovementController();
     }
 
@@ -158,29 +162,43 @@ public class GameSystem {
     }
     private void checkEnemyBulletPlayerCollision() {
         Iterator<Bullet> bulletIterator = enemyBullets.iterator();
-        while (bulletIterator.hasNext()) {
-            Bullet bullet = bulletIterator.next();
-            if (bullet.getHitbox().overlaps(player.getHitbox())) {
-                System.out.println("get hit!");
-                player.lostLive(); //Decrement live for player
-                bulletIterator.remove();
 
-                System.out.println("player and enemy bullet have collision! Remaining Lives = " + player.getLives());
-                if ( !player.isGameOver()  ) {
-                    player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler, "Player", new Vector2(), 0, player.getLives());//Spawn player again .
-                    playerController = new PlayerController(player, settings.getPlayerSettings());
-                }
-                else if(player.isGameOver() )
-                {
-                    System.out.println("Player LOST - Game over");
-                    System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
-                }
-                else if(  level == 4 && !bulletIterator.hasNext() ) //Add winning condition
-                {
-                    System.out.println("Player won - Game over");
-                    System.exit(0);
-                }
 
+
+        if (isCollided == true) {
+            counter++;
+            enemyBullets = new ArrayList<>();
+            if (counter == time * frames) isCollided = false;
+        }
+        else {
+            while (bulletIterator.hasNext()) {
+                Bullet bullet = bulletIterator.next();
+                if (bullet.getHitbox().overlaps(player.getHitbox()) && isCollided == false) {
+
+                    //System.out.println("Player got hit by enemy Bullet!");
+                    isCollided = true;
+                    counter=0;
+                    player.lostLive(); //Decrement live for player
+                    bulletIterator.remove();
+
+                    counter = 0;
+
+
+                    System.out.println("player and enemy bullet have collision! Remaining Lives = " + player.getLives());
+                    if (!player.isGameOver()) {
+                        player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler, "Player", new Vector2(), 0, player.getLives());//Spawn player again .
+                        playerController = new PlayerController(player, settings.getPlayerSettings());
+                        enemyBullets = new ArrayList<>();
+                    } else if (player.isGameOver()) {
+                        System.out.println("Player LOST - Game over");
+                        System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
+                    } else if (level == 4 && !enemyList.containsKey("finalBoss")) //Add winning condition
+                    {
+                        System.out.println("Player won - Game over");
+                        System.exit(0);
+                    }
+
+                }
             }
         }
     }
@@ -233,6 +251,7 @@ public class GameSystem {
         renderEnemies(spriteBatch, time);
         renderPlayerBullets(spriteBatch);
         renderEnemyBullets(spriteBatch);
+        renderLives(spriteBatch,player.getLives());
     }
 
     private void moveEnemies(float time) {
@@ -280,6 +299,13 @@ public class GameSystem {
 
     private void renderBackground(SpriteBatch spriteBatch) {
         spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    }
+    private void renderLives(SpriteBatch spriteBatch, int lives)
+    {
+        for(int i=0;i<lives; i++)
+            //spriteBatch.draw(player_lives,i*100,i*100, 50, 50);
+            spriteBatch.draw(player_lives,Gdx.graphics.getWidth()-50/2*(i+1)-30,Gdx.graphics.getHeight()-30, 30, 30);
+        // spriteBatch.draw
     }
 
     private void renderEnemies(SpriteBatch spriteBatch, float time) {
