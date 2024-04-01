@@ -3,6 +3,7 @@
   "playerSettings": {
     "normalSpeed": 5.0,
     "slowSpeed": 1.0,
+
     "moveUp": "W",
     "moveDown": "A",
     "moveLeft": "A",
@@ -17,6 +18,7 @@
     "midBoss": "midBoss2.png",
     "finalBoss": "finalBoss.png",
     "background": "space_background.png",
-    "bullet": "bullet.png"
+    "bullet": "bullet.png",
+    "lives": "life_star.png"
   }
 }
