@@ -1,27 +1,21 @@
 package com.bullethell.game.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.Patterns.Factory.*;
 import com.bullethell.game.controllers.MovementController;
 import com.bullethell.game.controllers.PlayerController;
 import com.bullethell.game.entities.Bullet;
 import com.bullethell.game.entities.Enemy;
-import com.bullethell.game.entities.Entity;
 import com.bullethell.game.entities.Player;
-import com.bullethell.game.movements.CircularMovement;
-import com.bullethell.game.movements.MovementQueue;
-import com.bullethell.game.movements.Movements;
-import com.bullethell.game.movements.TargetedMovement;
 import com.bullethell.game.settings.Settings;
+import com.bullethell.game.systems.Enemies.EnemyManager;
 import com.bullethell.game.utils.JsonUtil;
+import com.bullethell.game.utils.Renderer;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class GameSystem {
     private Settings settings;
@@ -44,67 +38,55 @@ public class GameSystem {
 
     private float timeInSeconds = 0f;
     private EntityFactory playerFactory;
-    private EntityFactory bulletFactory;
-    private EntityFactory gruntFactory;
-    private EntityFactory bossFactory;
+    private Renderer renderer;
     private int level = 0;
 
-    public GameSystem() {
+    private EnemyManager enemyManager;
+
+    private SpriteBatch spriteBatch;
+
+    public GameSystem(SpriteBatch spriteBatch) {
         playerFactory = new PlayerFactory();
-        bulletFactory = new BulletFactory();
-        gruntFactory = new GruntFactory();
-        bossFactory = new BossFactory();
+        this.spriteBatch = spriteBatch;
     }
 
     public void init() {
         loadSettings();
         assetHandler.load(settings.getAssets());
 
-
         enemyList = new HashMap<>();
         // Create player using factory
         player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler,"Player", new Vector2(), 0, 5);
         playerController = new PlayerController(player, settings.getPlayerSettings());
-        //player = new Player((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler);
         playerBullets = new ArrayList<>();
 
 
         background = assetHandler.getAssetTexture("background");
         mc = new MovementController();
+
+        renderer = new Renderer();
+
+        enemyManager = new EnemyManager(settings.getLevelInterpreter(), renderer);
     }
 
-    public void update(float time) throws InterruptedException {
+    public void update(float time) {
         timeInSeconds += time;
-        if (timeInSeconds <= 48 && enemyList.get("gruntA") == null) {
-            level++;
-            addEnemies(20, "gruntA");
-        } else if (timeInSeconds > 48 && timeInSeconds <= 75 && enemyList.get("midBoss") == null) {
-            level++;
-            enemyList.remove("gruntA");
-            addEnemies(1, "midBoss");
 
-        } else if (timeInSeconds > 75 && timeInSeconds <= 92 && enemyList.get("gruntB") == null) {
-            level++;
-            enemyList.remove("midBoss");
-            addEnemies(14, "gruntB");
+        enemyManager.update(timeInSeconds, time, assetHandler, spriteBatch);
 
-        } else if (timeInSeconds > 92 && enemyList.get("finalBoss") == null) {
-            level++;
-            enemyList.remove("gruntB");
-            addEnemies(1, "finalBoss");
-
-        }
+        enemyList = enemyManager.getEnemyList();
 
         playerController.listen(playerBullets, assetHandler, time);
         updatePlayerBullets();
-        moveEnemies(time);
         checkPlayerCollision();
         checkBulletCollision();
         checkEnemyBulletPlayerCollision();
         updateEnemyBullets(time);
         enemyShoot(time);
     }
-    private void checkPlayerCollision() throws InterruptedException {
+
+    //TODO: move this to separate collision detection class (deliverable 3)
+    private void checkPlayerCollision() {
         List<Enemy> allEnemies = new ArrayList<>();
         enemyList.values().forEach(allEnemies::addAll);
         Iterator<Enemy> enemyIterator = allEnemies.iterator();
@@ -135,6 +117,8 @@ public class GameSystem {
             }
         }
     }
+
+    //TODO: move this to separate collision detection class (deliverable 3)
     private void checkBulletCollision(){ //Player to enemy bullet collision
         for(Iterator<Bullet> bulletIterator = playerBullets.iterator(); bulletIterator.hasNext();){
             Bullet bullet = bulletIterator.next();
@@ -156,6 +140,8 @@ public class GameSystem {
             }
         }
     }
+
+    //TODO: move this to separate collision detection class (deliverable 3)
     private void checkEnemyBulletPlayerCollision() {
         Iterator<Bullet> bulletIterator = enemyBullets.iterator();
         while (bulletIterator.hasNext()) {
@@ -184,6 +170,7 @@ public class GameSystem {
             }
         }
     }
+    //TODO: move this to enemy management class (deliverable 3)
     private void enemyShoot(float deltaTime) {
         for (ArrayList<Enemy> enemies : enemyList.values()) {
             for (Enemy enemy : enemies) {
@@ -210,6 +197,8 @@ public class GameSystem {
             }
         }
     }
+
+    //TODO: move this to enemy management class (deliverable 3)
     private void updateEnemyBullets(float deltaTime) {
         Iterator<Bullet> iterator = enemyBullets.iterator();
         while(iterator.hasNext()) {
@@ -220,83 +209,19 @@ public class GameSystem {
             }
         }
     }
-    private void renderEnemyBullets(SpriteBatch spriteBatch) {
+    private void renderEnemyBullets() {
         for (Bullet bullet : enemyBullets) {
             spriteBatch.draw(bullet.sprite, bullet.getPosition().x, bullet.getPosition().y);
         }
     }
-    public void render(SpriteBatch spriteBatch, float time) throws InterruptedException {
+    public void render(float time) {
         // combined renders
         update(time);
-        renderBackground(spriteBatch);
-        renderEntity(spriteBatch, player, true); // render player
-        renderEnemies(spriteBatch, time);
-        renderPlayerBullets(spriteBatch);
-        renderEnemyBullets(spriteBatch);
-    }
-
-    private void moveEnemies(float time) {
-        ArrayList<Enemy> enemies;
-        if (timeInSeconds <= 48 && enemyList.get("gruntA") != null) {
-            enemies = enemyList.get("gruntA");
-        } else if(timeInSeconds > 48 && timeInSeconds <= 75) {
-            enemies = enemyList.get("midBoss");
-        } else if (timeInSeconds > 75 && timeInSeconds <= 92) {
-            enemies = enemyList.get("gruntB");
-        } else {
-            enemies = enemyList.get("finalBoss");
-        }
-
-        if (enemies != null && !enemies.isEmpty()) {
-            //for (Enemy enemy : enemies) {
-                mc.update(time);
-
-            //}
-        }
-    }
-
-    private void renderEntity(SpriteBatch spriteBatch, Entity entity, boolean renderHitBox) {
-        spriteBatch.draw(entity.sprite, entity.sprite.getX(), entity.sprite.getY());
-        if (renderHitBox) {
-            // End the sprite batch before starting shape rendering
-            spriteBatch.end();
-
-            entity.shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            entity.shapeRenderer.setColor(Color.BLUE);
-
-            // Use the hitbox's position and size for rendering
-            entity.shapeRenderer.rect(
-                    entity.getHitbox().x,
-                    entity.getHitbox().y,
-                    entity.getHitbox().width,
-                    entity.getHitbox().height
-            );
-
-            entity.shapeRenderer.end();
-
-            spriteBatch.begin();
-        }
-    }
-
-    private void renderBackground(SpriteBatch spriteBatch) {
-        spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-    }
-
-    private void renderEnemies(SpriteBatch spriteBatch, float time) {
-        ArrayList<Enemy> enemies = new ArrayList<>();
-        if (timeInSeconds < 48 && enemyList.get("gruntA") != null) {
-            enemies = enemyList.get("gruntA");
-        } else if (timeInSeconds > 48 && timeInSeconds <= 75 && enemyList.get("midBoss") != null) {
-            enemies = enemyList.get("midBoss");
-        } else if (timeInSeconds > 75 && timeInSeconds <= 92 && enemyList.get("gruntB") != null) {
-            enemies = enemyList.get("gruntB");
-        } else if (timeInSeconds > 92 && enemyList.get("finalBoss") != null) {
-            enemies = enemyList.get("finalBoss");
-        }
-
-        for (Enemy enemy : enemies) {
-            renderEntity(spriteBatch, enemy, true);
-        }
+        renderer.renderBackground(spriteBatch, background);
+        renderer.renderEntity(spriteBatch, player, true); // render player
+        enemyManager.renderEnemies(time, spriteBatch);
+        renderPlayerBullets();
+        renderEnemyBullets();
     }
 
     private void loadSettings() {
@@ -304,9 +229,9 @@ public class GameSystem {
         settings = jsonUtil.deserializeJson("settings/settings.json", Settings.class);
     }
 
-    private void renderPlayerBullets(SpriteBatch spriteBatch) {
+    private void renderPlayerBullets() {
         for (Bullet bullet : playerBullets) {
-            renderEntity(spriteBatch, bullet, true);
+            renderer.renderEntity(spriteBatch, bullet, true);
         }
     }
 
@@ -321,144 +246,5 @@ public class GameSystem {
         if (!removeList.isEmpty()) {
             playerBullets.removeAll(removeList);
         }
-    }
-
-    private void addEnemies(int count, String type) {
-        ArrayList<Enemy> enemies = new ArrayList<>();
-
-        if (Objects.equals(type, "gruntA")) {
-            for (int i = 0; i < count; i++) {
-                MovementQueue mq = new MovementQueue();
-                Movements movements = new Movements();
-                float leftXPlacement = 0; // Left side placement
-                float rightXPlacement = (float) (Gdx.graphics.getWidth() - 50); // Right side placement
-
-                boolean isLeftSide = i % 2 == 0;
-
-                float xPosition = isLeftSide ? leftXPlacement : rightXPlacement;
-
-                float yPosition = Gdx.graphics.getHeight() + (i * 75);
-
-                //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
-
-                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
-                enemies.add(enemy);
-
-
-                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenHalf") : movements.moveTo(enemy.getPosition().x, (float) Gdx.graphics.getHeight() / 2 - 75), 200));
-                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenRight") : movements.moveTo("screenLeft"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenTop"), 200));
-
-                float centerX = Gdx.graphics.getWidth() / 2f;
-                float centerY = Gdx.graphics.getHeight() / 2f;
-                float radius = 200f; // Adjust this value to fit your game's scale
-                float angularVelocity = 0.9f; // Complete one full circle per second
-
-                if (isLeftSide) {
-                    mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 200));
-                    mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 200));
-                    mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 10), 210));
-                    mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.001f), 14));
-                }
-
-                mc.addEnemyMovement(enemy, mq);
-            }
-        } else if (Objects.equals(type, "gruntB")) {
-            for (int i = 0; i < count; i++) {
-                MovementQueue mq = new MovementQueue();
-                Movements movements = new Movements();
-                float leftXPlacement = 0; // Left side placement
-                float rightXPlacement = (float) (Gdx.graphics.getWidth() - 50); // Right side placement
-
-                boolean isLeftSide = i % 2 == 0;
-
-                float xPosition = isLeftSide ? leftXPlacement : rightXPlacement;
-
-                float yPosition = Gdx.graphics.getHeight() + (i * 75);
-
-                //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
-                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
-                enemies.add(enemy);
-
-
-                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenHalf") : movements.moveTo(enemy.getPosition().x, (float) Gdx.graphics.getHeight() / 2 - 75), 200));
-                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenRight") : movements.moveTo("screenLeft"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenTop"), 200));
-
-                float centerX = Gdx.graphics.getWidth() / 2f;
-                float centerY = Gdx.graphics.getHeight() / 2f;
-                float radius = 200f; // Adjust this value to fit your game's scale
-                float angularVelocity = 0.9f; // Complete one full circle per second
-
-                if (isLeftSide) {
-                    mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 200));
-                    mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 200));
-                    mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 10), 200));
-                    mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.001f), 14));
-                }
-
-                mc.addEnemyMovement(enemy, mq);
-            }
-        } else if (Objects.equals(type, "midBoss")) {
-
-            for (int i = 0; i < count; i++) {
-                MovementQueue mq = new MovementQueue();
-                Movements movements = new Movements();
-
-                float xPosition = (float) Gdx.graphics.getWidth() / 2;
-
-                float yPosition =    Gdx.graphics.getHeight();
-
-                //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
-                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
-                enemies.add(enemy);
-
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenHalf"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenRight"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 200));
-
-                float centerX = Gdx.graphics.getWidth() / 2f;
-                float centerY = Gdx.graphics.getHeight() / 2f;
-                float radius = 150f; // Adjust this value to fit your game's scale
-                float angularVelocity = 0.9f; // Complete one full circle per second
-
-                mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 1), 200));
-                mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.001f), 1));
-
-                mc.addEnemyMovement(enemy, mq);
-            }
-
-        } else if (Objects.equals(type, "finalBoss")) {
-            for (int i = 0; i < count; i++) {
-                MovementQueue mq = new MovementQueue();
-                Movements movements = new Movements();
-
-                float xPosition = (float) Gdx.graphics.getWidth() / 2;
-
-                float yPosition = Gdx.graphics.getHeight();
-
-                //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
-                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
-                enemies.add(enemy);
-
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenHalf"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenRight"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 200));
-
-                float centerX = Gdx.graphics.getWidth() / 2f;
-                float centerY = Gdx.graphics.getHeight() / 2f;
-                float radius = 150f; // Adjust this value to fit your game's scale
-                float angularVelocity = 0.9f; // Complete one full circle per second
-
-                mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 1), 200));
-                mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.001f), 1));
-
-                mc.addEnemyMovement(enemy, mq);
-            }
-        }
-
-        enemyList.put(type, enemies);
     }
 }

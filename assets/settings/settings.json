@@ -3,10 +3,10 @@
   "playerSettings": {
     "normalSpeed": 5.0,
     "slowSpeed": 1.0,
-    "moveUp": "W",
-    "moveDown": "S",
-    "moveLeft": "A",
-    "moveRight": "D",
+    "moveUp": "Up",
+    "moveDown": "Down",
+    "moveLeft": "Left",
+    "moveRight": "Right",
     "slowMode": "L-Shift",
     "shoot": "Space"
   },
@@ -18,5 +18,58 @@
     "finalBoss": "finalBoss.png",
     "background": "space_background.png",
     "bullet": "bullet.png"
+  },
+  "levelInterpreter": {
+    "difficulty": "easy",
+    "waves": [
+      {
+        "start": "0",
+        "end": "0:48",
+        "enemies": [
+          {
+            "type": "gruntA",
+            "count": 20,
+            "lives": 1,
+            "health": 1
+          }
+        ]
+      },
+      {
+        "start": "0:48",
+        "end": "1:15",
+        "enemies": [
+          {
+            "type": "gruntB",
+            "count": 20,
+            "lives": 1,
+            "health": 1
+          }
+        ]
+      },
+      {
+        "start": "1:15",
+        "end": "1:32",
+        "enemies": [
+          {
+            "type": "midBoss",
+            "count": 1,
+            "lives": 1,
+            "health": 1
+          }
+        ]
+      },
+      {
+        "start": "1:32",
+        "end": "3:00",
+        "enemies": [
+          {
+            "type": "finalBoss",
+            "count": 1,
+            "lives": 1,
+            "health": 1
+          }
+        ]
+      }
+    ]
   }
 }

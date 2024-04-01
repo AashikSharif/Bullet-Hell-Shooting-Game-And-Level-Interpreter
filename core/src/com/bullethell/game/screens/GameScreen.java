@@ -29,7 +29,7 @@ public class GameScreen implements Screen {
         this.game = game;
         batch = new SpriteBatch();
         this.settings = game.getSettings();
-        gameSystem = new GameSystem();
+        gameSystem = new GameSystem(batch);
         enemySprite = new Sprite[25];
         OrthographicCamera camera = new OrthographicCamera();
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
@@ -44,13 +44,7 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
         batch.begin();
-
-        try {
-            gameSystem.render(batch, delta);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
+        gameSystem.render(delta);
         batch.end();
     }
 
