@@ -22,14 +22,12 @@ public class GameScreen implements Screen {
     AssetHandler assetHandler = new AssetHandler();
 
     GameSystem gameSystem;
-//    private ScoringSystem scoringSystem;
-//    private LayoutScreen bgScreen;
 
     public GameScreen(BulletHellGame game) {
         this.game = game;
         batch = new SpriteBatch();
         this.settings = game.getSettings();
-        gameSystem = new GameSystem(batch);
+        gameSystem = new GameSystem(game, batch);
         enemySprite = new Sprite[25];
         OrthographicCamera camera = new OrthographicCamera();
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);

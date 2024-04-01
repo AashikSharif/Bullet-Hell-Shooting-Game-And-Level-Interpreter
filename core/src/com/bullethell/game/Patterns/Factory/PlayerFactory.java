@@ -10,6 +10,6 @@ public class PlayerFactory implements EntityFactory
     @Override
     public Player createEntity(float x, float y, AssetHandler assetHandler, String type, Vector2 velocity, int damage, int lives)
     {
-        return new Player(x,y,assetHandler, lives /* Player Lives*/);
+        return Player.getInstance(x,y,assetHandler,damage, lives);
     }
 }

@@ -2,8 +2,10 @@ package com.bullethell.game.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.bullethell.game.BulletHellGame;
 import com.bullethell.game.Patterns.Factory.*;
 import com.bullethell.game.controllers.MovementController;
 import com.bullethell.game.controllers.PlayerController;
@@ -14,6 +16,8 @@ import com.bullethell.game.settings.Settings;
 import com.bullethell.game.systems.Enemies.EnemyManager;
 import com.bullethell.game.utils.JsonUtil;
 import com.bullethell.game.utils.Renderer;
+import com.bullethell.game.screens.*;
+import jdk.tools.jmod.Main;
 
 import java.util.*;
 
@@ -23,6 +27,10 @@ public class GameSystem {
     private final AssetHandler assetHandler = new AssetHandler();
 
     private Texture background;
+    private Texture player_lives;
+    private int score;
+    private String yourScoreName;
+    BitmapFont yourBitmapFontName;
 
     private Player player;
 
@@ -39,13 +47,17 @@ public class GameSystem {
     private float timeInSeconds = 0f;
     private EntityFactory playerFactory;
     private Renderer renderer;
+    boolean isCollided = false;
+    int time = 3, frames = 60, counter=0;
     private int level = 0;
+    private final BulletHellGame game;
 
     private EnemyManager enemyManager;
 
     private SpriteBatch spriteBatch;
 
-    public GameSystem(SpriteBatch spriteBatch) {
+    public GameSystem(BulletHellGame game, SpriteBatch spriteBatch) {
+        this.game = game;
         playerFactory = new PlayerFactory();
         this.spriteBatch = spriteBatch;
     }
@@ -56,17 +68,23 @@ public class GameSystem {
 
         enemyList = new HashMap<>();
         // Create player using factory
-        player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler,"Player", new Vector2(), 0, 5);
+        player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler,"Player", new Vector2(), 25, 5);
         playerController = new PlayerController(player, settings.getPlayerSettings());
         playerBullets = new ArrayList<>();
 
-
         background = assetHandler.getAssetTexture("background");
+        player_lives = assetHandler.getAssetTexture("lives");
+
         mc = new MovementController();
 
         renderer = new Renderer();
 
         enemyManager = new EnemyManager(settings.getLevelInterpreter(), renderer);
+
+        //Initialize score
+        score = 0;
+        yourScoreName = "score: 0";
+        yourBitmapFontName = new BitmapFont();
     }
 
     public void update(float time) {
@@ -81,12 +99,13 @@ public class GameSystem {
         checkPlayerCollision();
         checkBulletCollision();
         checkEnemyBulletPlayerCollision();
-        updateEnemyBullets(time);
+        updateEnemyBullets();
         enemyShoot(time);
+        //checkHighScore();
     }
 
     //TODO: move this to separate collision detection class (deliverable 3)
-    private void checkPlayerCollision() {
+    private void checkPlayerCollision()  { // Player collision with Enemy
         List<Enemy> allEnemies = new ArrayList<>();
         enemyList.values().forEach(allEnemies::addAll);
         Iterator<Enemy> enemyIterator = allEnemies.iterator();
@@ -99,18 +118,20 @@ public class GameSystem {
                 System.out.println("player and enemy have collision! Remaining Lives = " + player.getLives());
                 enemyIterator.remove();
 
-                if ( !player.isGameOver()  ) {
-                    player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler, "Player", new Vector2(), 0, player.getLives());//Spawn player again .
-                    playerController = new PlayerController(player, settings.getPlayerSettings());
+                if ( !player.isGameOver()) {
+                    player.setPosition(new Vector2(Gdx.graphics.getWidth() / 2f - 66, 0) ); //Spawn player in new position
+                    enemyBullets = new ArrayList<>();
                 }
                 else if(player.isGameOver() )
                 {
                     System.out.println("Player LOST - Game over");
-                    System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
+                    toMainMenu();
+                    //System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
                 }
                 else if(  level == 4 && !enemyIterator.hasNext() ) //Add winning condition
                 {
                     System.out.println("Player won - Game over");
+
                     System.exit(0);
                 }
 
@@ -119,7 +140,7 @@ public class GameSystem {
     }
 
     //TODO: move this to separate collision detection class (deliverable 3)
-    private void checkBulletCollision(){ //Player to enemy bullet collision
+    private void checkBulletCollision(){ // Player bullet to enemy collision
         for(Iterator<Bullet> bulletIterator = playerBullets.iterator(); bulletIterator.hasNext();){
             Bullet bullet = bulletIterator.next();
             boolean bulletRemoved = false;
@@ -127,9 +148,20 @@ public class GameSystem {
                 for(Iterator<Enemy> enemyIterator = enemies.iterator(); enemyIterator.hasNext();){
                     Enemy enemy = enemyIterator.next();
                     if(bullet.getHitbox().overlaps(enemy.getHitbox())){
-                        System.out.println("Bullet hit detected!");
+
+                        //updating score
+                        score += enemy.getScore();
+
                         bulletIterator.remove();
-                        enemyIterator.remove();
+                        enemy.enemyHit(player.damage); //reducing  enemy health
+                        System.out.println("Bullet hit detected! - " + enemy.getHealth());
+                        if(enemy.getHealth() <= 0) {
+                            enemyIterator.remove();
+                            score += enemy.getKillBonusScore(); // update kill score
+                            checkPlayerWon(enemyIterator.hasNext());
+                        }
+                        yourScoreName="Score: "+ score;
+
                         bulletRemoved = true;
                         break;
                     }
@@ -142,33 +174,35 @@ public class GameSystem {
     }
 
     //TODO: move this to separate collision detection class (deliverable 3)
-    private void checkEnemyBulletPlayerCollision() {
+    private void checkEnemyBulletPlayerCollision() { // Enemy Bullet to player collision
         Iterator<Bullet> bulletIterator = enemyBullets.iterator();
-        while (bulletIterator.hasNext()) {
-            Bullet bullet = bulletIterator.next();
-            if (bullet.getHitbox().overlaps(player.getHitbox())) {
-                System.out.println("get hit!");
-                player.lostLive(); //Decrement live for player
-                bulletIterator.remove();
 
-                System.out.println("player and enemy bullet have collision! Remaining Lives = " + player.getLives());
-                if ( !player.isGameOver()  ) {
-                    player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler, "Player", new Vector2(), 0, player.getLives());//Spawn player again .
-                    playerController = new PlayerController(player, settings.getPlayerSettings());
-                }
-                else if(player.isGameOver() )
-                {
-                    System.out.println("Player LOST - Game over");
-                    System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
-                }
-                else if(  level == 4 && !bulletIterator.hasNext() ) //Add winning condition
-                {
-                    System.out.println("Player won - Game over");
-                    System.exit(0);
-                }
+            while (bulletIterator.hasNext()) {
+                Bullet bullet = bulletIterator.next();
+                if (bullet.getHitbox().overlaps(player.getHitbox()) && !isCollided) {
 
+                    //System.out.println("Player got hit by enemy Bullet!");
+                    isCollided = true;
+                    player.lostLive(); //Decrement live for player
+                    bulletIterator.remove();
+                    counter = 0;
+
+                    System.out.println("player and enemy bullet have collision! Remaining Lives = " + player.getLives());
+                    if (!player.isGameOver()) {
+                        player.setPosition(new Vector2(Gdx.graphics.getWidth() / 2f - 66, 0) ); //Spawn player in new position
+                        enemyBullets = new ArrayList<>();
+                    } else if (player.isGameOver()) {
+                        System.out.println("Player LOST - Game over");
+                        System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
+                    } else if (level == 4 && !enemyList.containsKey("finalBoss")) //Add winning condition
+                    {
+                        System.out.println("Player won - Game over");
+                        System.exit(0);
+                    }
+
+                }
             }
-        }
+
     }
     //TODO: move this to enemy management class (deliverable 3)
     private void enemyShoot(float deltaTime) {
@@ -189,17 +223,24 @@ public class GameSystem {
 
                     float bulletX = enemy.getPosition().x + (enemy.sprite.getWidth() / 2) - Bullet.HITBOX_WIDTH / 2;
                     float bulletY = enemy.getPosition().y - Bullet.HITBOX_HEIGHT;
-                    Bullet enemyBullet = new Bullet(bulletX, bulletY, "bullet", velocity, 1, assetHandler);
+                    Bullet enemyBullet = new Bullet(bulletX, bulletY, "bullet", velocity, 25, assetHandler);
 
-                    this.enemyBullets.add(enemyBullet);
-                    enemy.resetShootTimer();
+                    if(!isCollided) {
+                        this.enemyBullets.add(enemyBullet);
+                        //System.out.println(counter);
+                        enemy.resetShootTimer();
+                    }
+
                 }
             }
+            counter++;
         }
+        if (counter == time * frames) {isCollided = false;}
+
     }
 
     //TODO: move this to enemy management class (deliverable 3)
-    private void updateEnemyBullets(float deltaTime) {
+    private void updateEnemyBullets() {
         Iterator<Bullet> iterator = enemyBullets.iterator();
         while(iterator.hasNext()) {
             Bullet bullet = iterator.next();
@@ -222,19 +263,28 @@ public class GameSystem {
         enemyManager.renderEnemies(time, spriteBatch);
         renderPlayerBullets();
         renderEnemyBullets();
+        renderLives(spriteBatch, player.getLives());
+        renderScore(spriteBatch);
     }
+    private void renderScore(SpriteBatch spriteBatch) {
+        yourBitmapFontName.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+        yourBitmapFontName.draw(spriteBatch, yourScoreName,10, Gdx.graphics.getHeight()-20);
 
+    }
+    private void renderLives(SpriteBatch spriteBatch, int lives) {
+        for(int i=0;i<lives; i++) {
+            spriteBatch.draw(player_lives,Gdx.graphics.getWidth() - 50f / 2f * (i + 1) - 30,Gdx.graphics.getHeight() - 30, 30, 30);
+        }
+    }
     private void loadSettings() {
         JsonUtil jsonUtil = new JsonUtil();
         settings = jsonUtil.deserializeJson("settings/settings.json", Settings.class);
     }
-
     private void renderPlayerBullets() {
         for (Bullet bullet : playerBullets) {
             renderer.renderEntity(spriteBatch, bullet, true);
         }
     }
-
     private void updatePlayerBullets() {
         List<Bullet> removeList = new ArrayList<>();
         for (Bullet bullet : playerBullets) {
@@ -245,6 +295,18 @@ public class GameSystem {
         }
         if (!removeList.isEmpty()) {
             playerBullets.removeAll(removeList);
+        }
+    }
+    public void toMainMenu(){
+        game.setScreen(new GameOverScreen(game));
+    }
+
+    //winning condition, need winning screen changes
+    private void checkPlayerWon(boolean nextEnemy) {
+        //Add winning condition
+        if(level == 4 && !nextEnemy) {
+            System.out.println("Player won - Game over");
+            System.exit(0);
         }
     }
 }
