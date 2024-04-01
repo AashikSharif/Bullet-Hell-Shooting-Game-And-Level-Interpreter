@@ -1,11 +1,9 @@
 package com.bullethell.game.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.BulletHellGame;
 import com.bullethell.game.Patterns.Factory.*;
@@ -13,14 +11,11 @@ import com.bullethell.game.controllers.MovementController;
 import com.bullethell.game.controllers.PlayerController;
 import com.bullethell.game.entities.Bullet;
 import com.bullethell.game.entities.Enemy;
-import com.bullethell.game.entities.Entity;
 import com.bullethell.game.entities.Player;
-import com.bullethell.game.movements.CircularMovement;
-import com.bullethell.game.movements.MovementQueue;
-import com.bullethell.game.movements.Movements;
-import com.bullethell.game.movements.TargetedMovement;
 import com.bullethell.game.settings.Settings;
+import com.bullethell.game.systems.Enemies.EnemyManager;
 import com.bullethell.game.utils.JsonUtil;
+import com.bullethell.game.utils.Renderer;
 import com.bullethell.game.screens.*;
 import jdk.tools.jmod.Main;
 
@@ -50,25 +45,27 @@ public class GameSystem {
     private MovementController mc;
 
     private float timeInSeconds = 0f;
-    private final EntityFactory playerFactory;
-    private final EntityFactory gruntFactory;
-    private final EntityFactory bossFactory;
+    private EntityFactory playerFactory;
+    private Renderer renderer;
     boolean isCollided = false;
-    int time = 3, frames = 60,counter=0;
+    int time = 3, frames = 60, counter=0;
     private int level = 0;
     private final BulletHellGame game;
 
-    public GameSystem(BulletHellGame game) {
+    private EnemyManager enemyManager;
 
+    private SpriteBatch spriteBatch;
+
+    public GameSystem(BulletHellGame game, SpriteBatch spriteBatch) {
         this.game = game;
         playerFactory = new PlayerFactory();
-        gruntFactory = new GruntFactory();
-        bossFactory = new BossFactory();
+        this.spriteBatch = spriteBatch;
     }
 
     public void init() {
         loadSettings();
         assetHandler.load(settings.getAssets());
+
         enemyList = new HashMap<>();
         // Create player using factory
         player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler,"Player", new Vector2(), 25, 5);
@@ -80,37 +77,25 @@ public class GameSystem {
 
         mc = new MovementController();
 
+        renderer = new Renderer();
+
+        enemyManager = new EnemyManager(settings.getLevelInterpreter(), renderer);
+
         //Initialize score
         score = 0;
         yourScoreName = "score: 0";
         yourBitmapFontName = new BitmapFont();
     }
 
-    public void update(float time) throws InterruptedException {
+    public void update(float time) {
         timeInSeconds += time;
-        if (timeInSeconds <= 48 && enemyList.get("gruntA") == null) {
-            level++;
-            addEnemies(20, "gruntA");
-        } else if (timeInSeconds > 48 && timeInSeconds <= 75 && enemyList.get("midBoss") == null) {
-            level++;
-            enemyList.remove("gruntA");
-            addEnemies(1, "midBoss");
 
-        } else if (timeInSeconds > 75 && timeInSeconds <= 92 && enemyList.get("gruntB") == null) {
-            level++;
-            enemyList.remove("midBoss");
-            addEnemies(14, "gruntB");
+        enemyManager.update(timeInSeconds, time, assetHandler, spriteBatch);
 
-        } else if (timeInSeconds > 92 && enemyList.get("finalBoss") == null) {
-            level++;
-            enemyList.remove("gruntB");
-            addEnemies(1, "finalBoss");
-
-        }
+        enemyList = enemyManager.getEnemyList();
 
         playerController.listen(playerBullets, assetHandler, time);
         updatePlayerBullets();
-        moveEnemies(time);
         checkPlayerCollision();
         checkBulletCollision();
         checkEnemyBulletPlayerCollision();
@@ -119,11 +104,8 @@ public class GameSystem {
         //checkHighScore();
     }
 
-    //private void checkHighScore() {
-    //    if(score>)
-    //}
-
-    private void checkPlayerCollision()  { //Player collision with Enemy
+    //TODO: move this to separate collision detection class (deliverable 3)
+    private void checkPlayerCollision()  { // Player collision with Enemy
         List<Enemy> allEnemies = new ArrayList<>();
         enemyList.values().forEach(allEnemies::addAll);
         Iterator<Enemy> enemyIterator = allEnemies.iterator();
@@ -156,7 +138,9 @@ public class GameSystem {
             }
         }
     }
-    private void checkBulletCollision(){ //Player bullet to enemy collision
+
+    //TODO: move this to separate collision detection class (deliverable 3)
+    private void checkBulletCollision(){ // Player bullet to enemy collision
         for(Iterator<Bullet> bulletIterator = playerBullets.iterator(); bulletIterator.hasNext();){
             Bullet bullet = bulletIterator.next();
             boolean bulletRemoved = false;
@@ -166,14 +150,15 @@ public class GameSystem {
                     if(bullet.getHitbox().overlaps(enemy.getHitbox())){
 
                         //updating score
-                        score+=enemy.getScore();
+                        score += enemy.getScore();
 
                         bulletIterator.remove();
                         enemy.enemyHit(player.damage); //reducing  enemy health
-                        System.out.println("Bullet hit detected! - "+enemy.getHealth());
-                        if(enemy.getHealth()<=0) {
+                        System.out.println("Bullet hit detected! - " + enemy.getHealth());
+                        if(enemy.getHealth() <= 0) {
                             enemyIterator.remove();
-                            score+=enemy.getKillBonusScore(); //update kill score
+                            score += enemy.getKillBonusScore(); // update kill score
+                            checkPlayerWon(enemyIterator.hasNext());
                         }
                         yourScoreName="Score: "+ score;
 
@@ -187,7 +172,9 @@ public class GameSystem {
             }
         }
     }
-    private void checkEnemyBulletPlayerCollision() { //Enemy Bullet to player collision
+
+    //TODO: move this to separate collision detection class (deliverable 3)
+    private void checkEnemyBulletPlayerCollision() { // Enemy Bullet to player collision
         Iterator<Bullet> bulletIterator = enemyBullets.iterator();
 
             while (bulletIterator.hasNext()) {
@@ -217,6 +204,7 @@ public class GameSystem {
             }
 
     }
+    //TODO: move this to enemy management class (deliverable 3)
     private void enemyShoot(float deltaTime) {
         for (ArrayList<Enemy> enemies : enemyList.values()) {
             for (Enemy enemy : enemies) {
@@ -250,6 +238,8 @@ public class GameSystem {
         if (counter == time * frames) {isCollided = false;}
 
     }
+
+    //TODO: move this to enemy management class (deliverable 3)
     private void updateEnemyBullets() {
         Iterator<Bullet> iterator = enemyBullets.iterator();
         while(iterator.hasNext()) {
@@ -260,107 +250,41 @@ public class GameSystem {
             }
         }
     }
-    private void renderEnemyBullets(SpriteBatch spriteBatch) {
+    private void renderEnemyBullets() {
         for (Bullet bullet : enemyBullets) {
             spriteBatch.draw(bullet.sprite, bullet.getPosition().x, bullet.getPosition().y);
         }
     }
-    public void render(SpriteBatch spriteBatch, float time) throws InterruptedException {
+    public void render(float time) {
         // combined renders
         update(time);
-        renderBackground(spriteBatch);
-        renderEntity(spriteBatch, player); // render player
-        renderEnemies(spriteBatch);
-        renderPlayerBullets(spriteBatch);
-        renderEnemyBullets(spriteBatch);
-        renderLives(spriteBatch,player.getLives());
+        renderer.renderBackground(spriteBatch, background);
+        renderer.renderEntity(spriteBatch, player, true); // render player
+        enemyManager.renderEnemies(time, spriteBatch);
+        renderPlayerBullets();
+        renderEnemyBullets();
+        renderLives(spriteBatch, player.getLives());
         renderScore(spriteBatch);
     }
-
     private void renderScore(SpriteBatch spriteBatch) {
         yourBitmapFontName.setColor(1.0f, 1.0f, 1.0f, 1.0f);
         yourBitmapFontName.draw(spriteBatch, yourScoreName,10, Gdx.graphics.getHeight()-20);
 
     }
-
-    private void moveEnemies(float time) {
-        ArrayList<Enemy> enemies;
-        if (timeInSeconds <= 48 && enemyList.get("gruntA") != null) {
-            enemies = enemyList.get("gruntA");
-        } else if(timeInSeconds > 48 && timeInSeconds <= 75) {
-            enemies = enemyList.get("midBoss");
-        } else if (timeInSeconds > 75 && timeInSeconds <= 92) {
-            enemies = enemyList.get("gruntB");
-        } else {
-            enemies = enemyList.get("finalBoss");
-        }
-
-        if (enemies != null && !enemies.isEmpty()) {
-                mc.update(time);
+    private void renderLives(SpriteBatch spriteBatch, int lives) {
+        for(int i=0;i<lives; i++) {
+            spriteBatch.draw(player_lives,Gdx.graphics.getWidth() - 50f / 2f * (i + 1) - 30,Gdx.graphics.getHeight() - 30, 30, 30);
         }
     }
-
-    private void renderEntity(SpriteBatch spriteBatch, Entity entity) {
-        spriteBatch.draw(entity.sprite, entity.sprite.getX(), entity.sprite.getY());
-
-            // End the sprite batch before starting shape rendering
-            spriteBatch.end();
-
-            entity.shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            entity.shapeRenderer.setColor(Color.BLUE);
-
-            // Use the hitbox's position and size for rendering
-            entity.shapeRenderer.rect(
-                    entity.getHitbox().x,
-                    entity.getHitbox().y,
-                    entity.getHitbox().width,
-                    entity.getHitbox().height
-            );
-
-            entity.shapeRenderer.end();
-
-            spriteBatch.begin();
-    }
-
-    private void renderBackground(SpriteBatch spriteBatch) {
-        spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-    }
-    private void renderLives(SpriteBatch spriteBatch, int lives)
-    {
-        for(int i=0;i<lives; i++)
-            //spriteBatch.draw(player_lives,i*100,i*100, 50, 50);
-            spriteBatch.draw(player_lives,Gdx.graphics.getWidth()-50f/2f*(i+1)-30,Gdx.graphics.getHeight()-30, 30, 30);
-        // spriteBatch.draw
-    }
-
-    private void renderEnemies(SpriteBatch spriteBatch) {
-        ArrayList<Enemy> enemies = new ArrayList<>();
-        if (timeInSeconds < 48 && enemyList.get("gruntA") != null) {
-            enemies = enemyList.get("gruntA");
-        } else if (timeInSeconds > 48 && timeInSeconds <= 75 && enemyList.get("midBoss") != null) {
-            enemies = enemyList.get("midBoss");
-        } else if (timeInSeconds > 75 && timeInSeconds <= 92 && enemyList.get("gruntB") != null) {
-            enemies = enemyList.get("gruntB");
-        } else if (timeInSeconds > 92 && enemyList.get("finalBoss") != null) {
-            enemies = enemyList.get("finalBoss");
-        }
-
-        for (Enemy enemy : enemies) {
-            renderEntity(spriteBatch, enemy);
-        }
-    }
-
     private void loadSettings() {
         JsonUtil jsonUtil = new JsonUtil();
         settings = jsonUtil.deserializeJson("settings/settings.json", Settings.class);
     }
-
-    private void renderPlayerBullets(SpriteBatch spriteBatch) {
+    private void renderPlayerBullets() {
         for (Bullet bullet : playerBullets) {
-            renderEntity(spriteBatch, bullet);
+            renderer.renderEntity(spriteBatch, bullet, true);
         }
     }
-
     private void updatePlayerBullets() {
         List<Bullet> removeList = new ArrayList<>();
         for (Bullet bullet : playerBullets) {
@@ -373,142 +297,16 @@ public class GameSystem {
             playerBullets.removeAll(removeList);
         }
     }
-
-    private void addEnemies(int count, String type) {
-        ArrayList<Enemy> enemies = new ArrayList<>();
-
-        if (Objects.equals(type, "gruntA")) {
-            for (int i = 0; i < count; i++) {
-                MovementQueue mq = new MovementQueue();
-                Movements movements = new Movements();
-                float leftXPlacement = 0; // Left side placement
-                float rightXPlacement = (float) (Gdx.graphics.getWidth() - 50); // Right side placement
-
-                boolean isLeftSide = i % 2 == 0;
-
-                float xPosition = isLeftSide ? leftXPlacement : rightXPlacement;
-
-                float yPosition = Gdx.graphics.getHeight() + (i * 75);
-
-                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
-                enemies.add(enemy);
-
-
-                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenHalf") : movements.moveTo(enemy.getPosition().x, (float) Gdx.graphics.getHeight() / 2 - 75), 200));
-                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenRight") : movements.moveTo("screenLeft"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenTop"), 200));
-
-                float centerX = Gdx.graphics.getWidth() / 2f;
-                float centerY = Gdx.graphics.getHeight() / 2f;
-                float radius = 200f; // Adjust this value to fit your game's scale
-                float angularVelocity = 0.9f; // Complete one full circle per second
-
-                if (isLeftSide) {
-                    mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 200));
-                    mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 200));
-                    mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 10), 210));
-                    mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.001f), 14));
-                }
-
-                mc.addEnemyMovement(enemy, mq);
-            }
-        } else if (Objects.equals(type, "gruntB")) {
-            for (int i = 0; i < count; i++) {
-                MovementQueue mq = new MovementQueue();
-                Movements movements = new Movements();
-                float leftXPlacement = 0; // Left side placement
-                float rightXPlacement = (float) (Gdx.graphics.getWidth() - 50); // Right side placement
-
-                boolean isLeftSide = i % 2 == 0;
-
-                float xPosition = isLeftSide ? leftXPlacement : rightXPlacement;
-
-                float yPosition = Gdx.graphics.getHeight() + (i * 75);
-
-                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
-                enemies.add(enemy);
-
-
-                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenHalf") : movements.moveTo(enemy.getPosition().x, (float) Gdx.graphics.getHeight() / 2 - 75), 200));
-                mq.addMovement(new TargetedMovement(isLeftSide ? movements.moveTo("screenRight") : movements.moveTo("screenLeft"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenTop"), 200));
-
-                float centerX = Gdx.graphics.getWidth() / 2f;
-                float centerY = Gdx.graphics.getHeight() / 2f;
-                float radius = 200f; // Adjust this value to fit your game's scale
-                float angularVelocity = 0.9f; // Complete one full circle per second
-
-                if (isLeftSide) {
-                    mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 200));
-                    mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 200));
-                    mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 10), 200));
-                    mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.001f), 14));
-                }
-
-                mc.addEnemyMovement(enemy, mq);
-            }
-        } else if (Objects.equals(type, "midBoss")) {
-
-            for (int i = 0; i < count; i++) {
-                MovementQueue mq = new MovementQueue();
-                Movements movements = new Movements();
-
-                float xPosition = (float) Gdx.graphics.getWidth() / 2;
-
-                float yPosition =    Gdx.graphics.getHeight();
-
-                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
-                enemies.add(enemy);
-
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenHalf"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenRight"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 200));
-
-                float centerX = Gdx.graphics.getWidth() / 2f;
-                float centerY = Gdx.graphics.getHeight() / 2f;
-                float radius = 150f; // Adjust this value to fit your game's scale
-                float angularVelocity = 0.9f; // Complete one full circle per second
-
-                mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 1), 200));
-                mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.001f), 1));
-
-                mc.addEnemyMovement(enemy, mq);
-            }
-
-        } else if (Objects.equals(type, "finalBoss")) {
-            for (int i = 0; i < count; i++) {
-                MovementQueue mq = new MovementQueue();
-                Movements movements = new Movements();
-
-                float xPosition = (float) Gdx.graphics.getWidth() / 2;
-
-                float yPosition = Gdx.graphics.getHeight();
-
-                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
-                enemies.add(enemy);
-
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenHalf"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenLeft"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenRight"), 200));
-                mq.addMovement(new TargetedMovement(movements.moveTo("screenCenter"), 200));
-
-                float centerX = Gdx.graphics.getWidth() / 2f;
-                float centerY = Gdx.graphics.getHeight() / 2f;
-                float radius = 150f; // Adjust this value to fit your game's scale
-                float angularVelocity = 0.9f; // Complete one full circle per second
-
-                mq.addMovement(new TargetedMovement(movements.moveToCircleEdge(centerX, centerY, radius, 1), 200));
-                mq.addMovement(new CircularMovement(centerX, centerY, radius, angularVelocity + (i * 0.001f), 1));
-
-                mc.addEnemyMovement(enemy, mq);
-            }
-        }
-
-        enemyList.put(type, enemies);
-    }
-
     public void toMainMenu(){
         game.setScreen(new GameOverScreen(game));
+    }
+
+    //winning condition, need winning screen changes
+    private void checkPlayerWon(boolean nextEnemy) {
+        //Add winning condition
+        if(level == 4 && !nextEnemy) {
+            System.out.println("Player won - Game over");
+            System.exit(0);
+        }
     }
 }

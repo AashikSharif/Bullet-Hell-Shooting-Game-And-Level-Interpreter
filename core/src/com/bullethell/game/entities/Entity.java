@@ -18,8 +18,8 @@ public abstract class Entity {
         float hbW, hbH = 0;
 
         if (entity.equals("player")) {
-            hbW = this.sprite.getWidth() / 4;
-            hbH = this.sprite.getHeight() / 4;
+            hbW = this.sprite.getWidth() / 5;
+            hbH = this.sprite.getHeight() / 5;
         } else {
             hbW = this.sprite.getWidth();
             hbH = this.sprite.getHeight();

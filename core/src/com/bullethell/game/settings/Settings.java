@@ -5,8 +5,8 @@ import java.util.Map;
 public class Settings {
     private GlobalSettings global;
     private PlayerSettings playerSettings;
-
     private Map<String, String> assets;
+    private LevelInterpreter levelInterpreter;
 
     public Settings () {}
 
@@ -32,5 +32,13 @@ public class Settings {
 
     public void setAssets(Map<String, String> assets) {
         this.assets = assets;
+    }
+
+    public LevelInterpreter getLevelInterpreter() {
+        return levelInterpreter;
+    }
+
+    public void setLevelInterpreter(LevelInterpreter levelInterpreter) {
+        this.levelInterpreter = levelInterpreter;
     }
 }
