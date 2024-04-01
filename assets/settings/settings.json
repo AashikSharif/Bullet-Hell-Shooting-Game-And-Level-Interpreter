@@ -3,9 +3,8 @@
   "playerSettings": {
     "normalSpeed": 5.0,
     "slowSpeed": 1.0,
-
     "moveUp": "W",
-    "moveDown": "A",
+    "moveDown": "S",
     "moveLeft": "A",
     "moveRight": "D",
     "slowMode": "L-Shift",
