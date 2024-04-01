@@ -35,7 +35,7 @@ public abstract class Entity {
                 position.y + sprite.getHeight() / 2 - hitbox.height / 2);
     }
 
-    public Vector2 getPosition() {
+        public Vector2 getPosition() {
         return position;
     }
 

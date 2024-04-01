@@ -19,5 +19,17 @@
     "background": "space_background.png",
     "bullet": "bullet.png",
     "lives": "life_star.png"
+  },
+  "score":
+  {
+    "highScore": 100,
+    "gruntAHit": 50,
+    "gruntBHit": 100,
+    "midBossHit": 500,
+    "finalBossHit": 1000,
+    "gruntAKill": 500,
+    "gruntBKill": 1000,
+    "midBossHit": 5000,
+    "finalBossHit": 10000
   }
 }

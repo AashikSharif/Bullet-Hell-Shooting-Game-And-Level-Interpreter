@@ -22,8 +22,6 @@ public class GameScreen implements Screen {
     AssetHandler assetHandler = new AssetHandler();
 
     GameSystem gameSystem;
-//    private ScoringSystem scoringSystem;
-//    private LayoutScreen bgScreen;
 
     public GameScreen(BulletHellGame game) {
         this.game = game;

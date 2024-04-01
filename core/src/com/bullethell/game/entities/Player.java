@@ -10,13 +10,15 @@ public class Player extends Entity implements IControllable, IShootable {
     boolean isSlow = false;
     private static final float HITBOX_WIDTH = 30;
     private static final float HITBOX_HEIGHT = 30;
+    public int damage;
 
     private int lives;
 
 
-    public Player(float x, float y, AssetHandler assetHandler, int lives) {
+    public Player(float x, float y, AssetHandler assetHandler,int damage, int lives) {
         super(x, y, "player", assetHandler);
         this.lives= lives; //Initialize the lives of the player
+        this.damage= damage;
     }
 
     public void update () {
