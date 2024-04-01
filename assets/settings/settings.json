@@ -25,49 +25,49 @@
     "waves": [
       {
         "start": "0",
-        "end": "0:05",
+        "end": "0:48",
         "enemies": [
           {
             "type": "gruntA",
             "count": 20,
             "lives": 1,
-            "health": 1
+            "health": 50
           }
         ]
       },
       {
-        "start": "0:05",
-        "end": "0:10",
-        "enemies": [
-          {
-            "type": "gruntB",
-            "count": 20,
-            "lives": 1,
-            "health": 1
-          }
-        ]
-      },
-      {
-        "start": "0:15",
-        "end": "0:20",
+        "start": "0:48",
+        "end": "1:15",
         "enemies": [
           {
             "type": "midBoss",
             "count": 1,
             "lives": 1,
-            "health": 1
+            "health": 500
           }
         ]
       },
       {
-        "start": "0:20",
-        "end": "0:40",
+        "start": "1:15",
+        "end": "1:32",
+        "enemies": [
+          {
+            "type": "gruntB",
+            "count": 20,
+            "lives": 1,
+            "health": 150
+          }
+        ]
+      },
+      {
+        "start": "1:32",
+        "end": "3:00",
         "enemies": [
           {
             "type": "finalBoss",
             "count": 1,
             "lives": 1,
-            "health": 1
+            "health": 1000
           }
         ]
       }
