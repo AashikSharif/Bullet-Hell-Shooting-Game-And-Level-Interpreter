@@ -50,4 +50,13 @@ public class Enemy extends Entity {
     public void setType(String type) {
         this.type = type;
     }
+    public int getScore() {return 0; }
+    public int getKillBonusScore(){return 0; }
+
+    public int enemyHit(int damage){
+        health-=damage;
+        return health;
+    }
+
+
 }
