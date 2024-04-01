@@ -18,7 +18,8 @@ public class EnemyManager {
     private LevelInterpreter levelInterpreter;
     private Map<String, ArrayList<Enemy>> enemyList;
     private MovementController movementController;
-    private int currentWave = -1;
+    public int currentWave = -1;
+
     public EnemyManager (LevelInterpreter levelInterpreter, Renderer renderer) {
         enemyList = new HashMap<>();
         enemySpawner = new EnemySpawner(levelInterpreter);

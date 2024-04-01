@@ -25,7 +25,7 @@
     "waves": [
       {
         "start": "0",
-        "end": "0:48",
+        "end": "0:05",
         "enemies": [
           {
             "type": "gruntA",
@@ -36,8 +36,8 @@
         ]
       },
       {
-        "start": "0:48",
-        "end": "1:15",
+        "start": "0:05",
+        "end": "0:10",
         "enemies": [
           {
             "type": "gruntB",
@@ -48,8 +48,8 @@
         ]
       },
       {
-        "start": "1:15",
-        "end": "1:32",
+        "start": "0:15",
+        "end": "0:20",
         "enemies": [
           {
             "type": "midBoss",
@@ -60,8 +60,8 @@
         ]
       },
       {
-        "start": "1:32",
-        "end": "3:00",
+        "start": "0:20",
+        "end": "0:40",
         "enemies": [
           {
             "type": "finalBoss",

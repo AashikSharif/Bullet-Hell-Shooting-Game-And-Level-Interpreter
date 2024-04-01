@@ -69,6 +69,7 @@ public class GameSystem {
         enemyList = new HashMap<>();
         // Create player using factory
         player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler,"Player", new Vector2(), 25, 5);
+
         playerController = new PlayerController(player, settings.getPlayerSettings());
         playerBullets = new ArrayList<>();
 
@@ -125,14 +126,15 @@ public class GameSystem {
                 else if(player.isGameOver() )
                 {
                     System.out.println("Player LOST - Game over");
-                    toMainMenu();
-                    //System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
-                }
-                else if(  level == 4 && !enemyIterator.hasNext() ) //Add winning condition
-                {
-                    System.out.println("Player won - Game over");
-
-                    System.exit(0);
+                    //re-write a reset method later
+                    //level=0;
+                    timeInSeconds = 0f;
+                    playerBullets.clear();
+                    enemyBullets.clear();
+                    enemyManager.getEnemyList().clear();
+                    player.setLives(5);
+                    player.setPosition(new Vector2(Gdx.graphics.getWidth() / 2f - 66, 0));  //need to replace it to diff. func.
+                    game.setScreen(new GameOverScreen(game));
                 }
 
             }
@@ -158,7 +160,7 @@ public class GameSystem {
                         if(enemy.getHealth() <= 0) {
                             enemyIterator.remove();
                             score += enemy.getKillBonusScore(); // update kill score
-                            checkPlayerWon(enemyIterator.hasNext());
+                            checkPlayerWon(false);
                         }
                         yourScoreName="Score: "+ score;
 
@@ -193,11 +195,15 @@ public class GameSystem {
                         enemyBullets = new ArrayList<>();
                     } else if (player.isGameOver()) {
                         System.out.println("Player LOST - Game over");
-                        System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
-                    } else if (level == 4 && !enemyList.containsKey("finalBoss")) //Add winning condition
-                    {
-                        System.out.println("Player won - Game over");
-                        System.exit(0);
+                        //re-write a reset method later
+
+                        timeInSeconds = 0f;
+                        playerBullets.clear();
+                        enemyBullets.clear();
+                        enemyManager.getEnemyList().clear();
+                        player.setLives(5);
+                        player.setPosition(new Vector2(Gdx.graphics.getWidth() / 2f - 66, 0));  //need to replace it to diff. func.
+                        game.setScreen(new GameOverScreen(game));
                     }
 
                 }
@@ -304,9 +310,9 @@ public class GameSystem {
     //winning condition, need winning screen changes
     private void checkPlayerWon(boolean nextEnemy) {
         //Add winning condition
-        if(level == 4 && !nextEnemy) {
+        if(enemyManager.currentWave == 3 && !nextEnemy) {
             System.out.println("Player won - Game over");
-            System.exit(0);
+            game.setScreen(new GameWinScreen(game));
         }
     }
 }
