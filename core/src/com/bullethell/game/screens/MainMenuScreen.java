@@ -91,7 +91,7 @@ public class MainMenuScreen implements Screen {
         stage.addActor(exitButton);
     }
 
-    private void ToOption() {
+    public void ToOption() {
         game.setScreen(new OptionsScreen(game));
     }
 

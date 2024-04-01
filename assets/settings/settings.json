@@ -4,7 +4,7 @@
     "normalSpeed": 5.0,
     "slowSpeed": 1.0,
     "moveUp": "W",
-    "moveDown": "S",
+    "moveDown": "A",
     "moveLeft": "A",
     "moveRight": "D",
     "slowMode": "L-Shift",

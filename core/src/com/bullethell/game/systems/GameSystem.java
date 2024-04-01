@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.bullethell.game.BulletHellGame;
 import com.bullethell.game.Patterns.Factory.*;
 import com.bullethell.game.controllers.MovementController;
 import com.bullethell.game.controllers.PlayerController;
@@ -19,6 +20,8 @@ import com.bullethell.game.movements.Movements;
 import com.bullethell.game.movements.TargetedMovement;
 import com.bullethell.game.settings.Settings;
 import com.bullethell.game.utils.JsonUtil;
+import com.bullethell.game.screens.*;
+import jdk.tools.jmod.Main;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -48,8 +51,11 @@ public class GameSystem {
     private EntityFactory gruntFactory;
     private EntityFactory bossFactory;
     private int level = 0;
+    private final BulletHellGame game;
 
-    public GameSystem() {
+    public GameSystem(BulletHellGame game) {
+
+        this.game = game;
         playerFactory = new PlayerFactory();
         bulletFactory = new BulletFactory();
         gruntFactory = new GruntFactory();
@@ -124,11 +130,13 @@ public class GameSystem {
                 else if(player.isGameOver() )
                 {
                     System.out.println("Player LOST - Game over");
-                    System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
+                    toMainMenu();
+                    //System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
                 }
                 else if(  level == 4 && !enemyIterator.hasNext() ) //Add winning condition
                 {
                     System.out.println("Player won - Game over");
+
                     System.exit(0);
                 }
 
@@ -441,5 +449,9 @@ public class GameSystem {
         }
 
         enemyList.put(type, enemies);
+    }
+
+    public void toMainMenu(){
+        game.setScreen(new GameOverScreen(game));
     }
 }

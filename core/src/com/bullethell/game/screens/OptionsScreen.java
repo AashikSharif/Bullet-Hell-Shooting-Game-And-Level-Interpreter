@@ -7,12 +7,14 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.bullethell.game.BulletHellGame;
 import com.bullethell.game.settings.PlayerSettings;
 import com.bullethell.game.settings.Settings;
 import com.bullethell.game.utils.JsonUtil;
+import jdk.tools.jmod.Main;
 
 import java.util.HashMap;
 
@@ -37,6 +39,7 @@ public class OptionsScreen implements Screen {
         loadMenu();
         loadSettings();
         initializeControlMappings();
+        displayKeyBinds();
     }
 
 
@@ -44,14 +47,17 @@ public class OptionsScreen implements Screen {
         float windowHeight = Gdx.graphics.getHeight();
         float windowWidth = Gdx.graphics.getWidth();
 
-        // Define your controls here. Example for "Up" control button:
         createControlButton("Up", 200, 600);
         createControlButton("Down", 200, 500);
         createControlButton("Left", 200, 400);
         createControlButton("Right", 200, 300);
         createControlButton("Slow Mode", 200, 200);
-        createControlButton("Slow Mode", 200, 200);
 
+        createTextField("Up",600,600,"Up");
+        createTextField("Down",600,500,"Down");
+        createTextField("Left",600,400,"Left");
+        createTextField("Right",600,300,"Right");
+        createTextField("Slow Mode",600,200,"Slow Mode");
 
         // Save Button
         TextButton saveButton = new TextButton("Save", skin, "small");
@@ -66,7 +72,19 @@ public class OptionsScreen implements Screen {
             }
         });
 
+        //Back to Main Menu
+        TextButton backToMenu = new TextButton("Back to Main Menu", skin, "small");
+        backToMenu.setSize(200, 50);
+        backToMenu.setPosition(windowWidth - 500, 100);
+        backToMenu.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                toMainMenu();
+            }
+        });
+
         stage.addActor(saveButton);
+        stage.addActor(backToMenu);
     }
 
     private void createControlButton(final String control, float x, float y) {
@@ -82,6 +100,15 @@ public class OptionsScreen implements Screen {
         });
 
         stage.addActor(button);
+    }
+    private void createTextField(final String fieldName, float x, float y, String key){
+        TextField field = new TextField(fieldName,skin);
+        int constantSize = 50;
+        field.setSize(constantSize*4,constantSize);
+        field.setPosition(x,y);
+        field.setText(controlMappings.get(key));
+
+        stage.addActor(field);
     }
 
     private void captureKeyInput(final String controlName) {
@@ -133,10 +160,19 @@ public class OptionsScreen implements Screen {
         }
     }
 
+    private void displayKeyBinds(){
+
+    }
+
+
 
     private void saveSettings(Settings settings) {
         JsonUtil jsonUtil = new JsonUtil();
         jsonUtil.save(settings, "settings/settings.json");
+    }
+
+    private void toMainMenu(){
+        game.setScreen(new MainMenuScreen(game));
     }
 
     @Override

@@ -29,7 +29,7 @@ public class GameScreen implements Screen {
         this.game = game;
         batch = new SpriteBatch();
         this.settings = game.getSettings();
-        gameSystem = new GameSystem();
+        gameSystem = new GameSystem(game);
         enemySprite = new Sprite[25];
         OrthographicCamera camera = new OrthographicCamera();
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
