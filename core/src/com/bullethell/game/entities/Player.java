@@ -63,14 +63,11 @@ public class Player extends Entity implements IControllable, IShootable {
 
     public boolean isGameOver()
     {
-        if (lives > 0) return false;
-        return true;
+        return lives <= 0;
     }
 
     public int getLives()
     { return lives; }
-
-
 
 }
 

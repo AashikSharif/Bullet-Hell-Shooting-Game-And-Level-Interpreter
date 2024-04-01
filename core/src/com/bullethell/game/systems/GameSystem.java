@@ -149,8 +149,8 @@ public class GameSystem {
                 else if(  level == 4 && !enemyIterator.hasNext() ) //Add winning condition
                 {
                     System.out.println("Player won - Game over");
-
-                    System.exit(0);
+                    game.setScreen(new GameWinScreen(game));
+//                    System.exit(0);
                 }
 
             }
@@ -206,11 +206,13 @@ public class GameSystem {
                         enemyBullets = new ArrayList<>();
                     } else if (player.isGameOver()) {
                         System.out.println("Player LOST - Game over");
-                        System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
+                        toMainMenu();
+//                        System.exit(0);  //trigger for game over screen -- needs to be modified for the game over screen - PLAYER LOST
                     } else if (level == 4 && !enemyList.containsKey("finalBoss")) //Add winning condition
                     {
                         System.out.println("Player won - Game over");
-                        System.exit(0);
+                        game.setScreen(new GameWinScreen(game));
+//                        System.exit(0);
                     }
 
                 }
