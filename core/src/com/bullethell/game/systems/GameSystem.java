@@ -17,6 +17,7 @@ import com.bullethell.game.systems.Enemies.EnemyManager;
 import com.bullethell.game.utils.JsonUtil;
 import com.bullethell.game.utils.Renderer;
 import com.bullethell.game.screens.*;
+import com.bullethell.game.utils.ScrollableBackground;
 import jdk.tools.jmod.Main;
 
 import java.util.*;
@@ -26,7 +27,7 @@ public class GameSystem {
 
     private final AssetHandler assetHandler = new AssetHandler();
 
-    private Texture background;
+    private ScrollableBackground background;
     private Texture player_lives;
     private int score;
     private String yourScoreName;
@@ -73,7 +74,7 @@ public class GameSystem {
         playerController = new PlayerController(player, settings.getPlayerSettings());
         playerBullets = new ArrayList<>();
 
-        background = assetHandler.getAssetTexture("background");
+        background = new ScrollableBackground(assetHandler, 100);
         player_lives = assetHandler.getAssetTexture("lives");
 
         mc = new MovementController();
@@ -102,6 +103,7 @@ public class GameSystem {
         checkEnemyBulletPlayerCollision();
         updateEnemyBullets();
         enemyShoot(time);
+        background.update(time);
         //checkHighScore();
     }
 
@@ -264,7 +266,8 @@ public class GameSystem {
     public void render(float time) {
         // combined renders
         update(time);
-        renderer.renderBackground(spriteBatch, background);
+        background.render(spriteBatch);
+//        renderer.renderBackground(spriteBatch, background);
         renderer.renderEntity(spriteBatch, player, true); // render player
         enemyManager.renderEnemies(time, spriteBatch);
         renderPlayerBullets();
