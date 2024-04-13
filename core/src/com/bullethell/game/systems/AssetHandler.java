@@ -31,8 +31,6 @@ public class AssetHandler {
         }
     }
 
-
-
     public void dispose() {
         System.out.println("Disposing Assets");
         assetManager.dispose();
