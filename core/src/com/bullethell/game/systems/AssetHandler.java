@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AssetHandler {
-    private AssetManager assetManager = new AssetManager();
-    private Map<String, String> map = new HashMap<>();
+    private final AssetManager assetManager = new AssetManager();
+    private final Map<String, String> map = new HashMap<>();
 
     public void load(Map<String, String> assets) {
         for (Map.Entry<String, String> asset : assets.entrySet()) {

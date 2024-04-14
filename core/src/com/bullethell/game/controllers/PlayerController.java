@@ -58,7 +58,7 @@ public class PlayerController {
                             player.getPosition().y + player.sprite.getHeight(),
                             "bullet",
                             new Vector2(0, 5),
-                            5,
+                            player.damage,
                             assetHandler
                     )
             );
