@@ -1,10 +1,11 @@
-package com.bullethell.game.systems.Enemies;
+package com.bullethell.game.systems.enemies;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.Patterns.Factory.BossFactory;
 import com.bullethell.game.Patterns.Factory.EntityFactory;
 import com.bullethell.game.Patterns.Factory.GruntFactory;
+import com.bullethell.game.Patterns.observer.IObserver;
 import com.bullethell.game.controllers.MovementController;
 import com.bullethell.game.entities.Enemy;
 import com.bullethell.game.movements.CircularMovement;
@@ -13,7 +14,6 @@ import com.bullethell.game.movements.Movements;
 import com.bullethell.game.movements.TargetedMovement;
 import com.bullethell.game.settings.LevelInterpreter;
 import com.bullethell.game.systems.AssetHandler;
-import com.bullethell.game.utils.TimeUtils;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -28,7 +28,7 @@ public class EnemySpawner {
         bossFactory = new BossFactory();
     }
 
-    public ArrayList<Enemy> getSpawn(LevelInterpreter.Enemy e, AssetHandler assetHandler, MovementController mc) {
+    public ArrayList<Enemy> getSpawn(LevelInterpreter.Enemy e, AssetHandler assetHandler, MovementController mc, IObserver observer) {
         ArrayList<Enemy> enemies = new ArrayList<>();
         String type = e.getType();
         int count = e.getCount();
@@ -47,7 +47,8 @@ public class EnemySpawner {
                 float yPosition = Gdx.graphics.getHeight() + (i * 75);
 
 
-                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
+                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler, type, new Vector2(), 0, 1);
+                enemy.addObserver(observer);
                 enemies.add(enemy);
 
                 System.out.println("Type A added");
@@ -85,7 +86,8 @@ public class EnemySpawner {
                 float yPosition = Gdx.graphics.getHeight() + (i * 75);
 
                 //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
-                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
+                Enemy enemy = (Enemy) gruntFactory.createEntity(xPosition, yPosition, assetHandler, type, new Vector2(), 0, 1);
+                enemy.addObserver(observer);
                 enemies.add(enemy);
 
                 System.out.println("Type B added");
@@ -119,7 +121,8 @@ public class EnemySpawner {
                 float yPosition =    Gdx.graphics.getHeight();
 
                 //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
-                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
+                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler, type, new Vector2(), 0, 1);
+                enemy.addObserver(observer);
                 enemies.add(enemy);
 
                 mq.addMovement(new TargetedMovement(movements.moveTo("screenHalf"), 200));
@@ -148,7 +151,8 @@ public class EnemySpawner {
                 float yPosition = Gdx.graphics.getHeight();
 
                 //Enemy enemy = new Enemy(xPosition, yPosition, assetHandler, type);
-                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler,type, new Vector2(), 0, 1);
+                Enemy enemy = (Enemy) bossFactory.createEntity(xPosition, yPosition, assetHandler, type, new Vector2(), 0, 1);
+                enemy.addObserver(observer);
                 enemies.add(enemy);
 
                 mq.addMovement(new TargetedMovement(movements.moveTo("screenHalf"), 200));

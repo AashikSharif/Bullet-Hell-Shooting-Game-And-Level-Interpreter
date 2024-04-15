@@ -1,14 +1,33 @@
 package com.bullethell.game.settings;
 
+import com.bullethell.game.utils.JsonUtil;
+
 import java.util.Map;
 
 public class Settings {
+    private static Settings instance;
     private GlobalSettings global;
     private PlayerSettings playerSettings;
     private Map<String, String> assets;
     private LevelInterpreter levelInterpreter;
 
     public Settings () {}
+
+    public static synchronized Settings getInstance() {
+        if (instance == null) {
+            instance = new Settings();
+            instance.loadSettings();
+        }
+        return instance;
+    }
+
+    private void loadSettings() {
+        JsonUtil jsonUtil = new JsonUtil();
+        instance = jsonUtil.deserializeJson("settings/settings.json", Settings.class);
+        if (instance == null) {
+            instance = new Settings();
+        }
+    }
 
     public GlobalSettings getGlobalSettings() {
         return global;

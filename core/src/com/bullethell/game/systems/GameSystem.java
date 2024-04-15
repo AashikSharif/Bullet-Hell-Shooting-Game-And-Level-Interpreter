@@ -8,43 +8,26 @@ import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.BulletHellGame;
 import com.bullethell.game.Patterns.Factory.*;
 import com.bullethell.game.controllers.MovementController;
-import com.bullethell.game.controllers.PlayerController;
 import com.bullethell.game.entities.Bullet;
 import com.bullethell.game.entities.Enemy;
 import com.bullethell.game.entities.Player;
 import com.bullethell.game.settings.Settings;
-import com.bullethell.game.systems.Enemies.EnemyManager;
-import com.bullethell.game.utils.JsonUtil;
 import com.bullethell.game.utils.Renderer;
 import com.bullethell.game.screens.*;
 import com.bullethell.game.utils.ScrollableBackground;
-import jdk.tools.jmod.Main;
 
 import java.util.*;
 
 public class GameSystem {
     private Settings settings;
-
     private final AssetHandler assetHandler = new AssetHandler();
-
     private ScrollableBackground background;
     private Texture player_lives;
     private int score;
     private String yourScoreName;
     BitmapFont yourBitmapFontName;
-
-    private Player player;
-
-    private PlayerController playerController;
-
-    private List<Bullet> playerBullets;
-
     private List<Bullet> enemyBullets = new ArrayList<>();
-
-    private Map<String, ArrayList<Enemy>> enemyList;
-
     private MovementController mc;
-
     private float timeInSeconds = 0f;
     private EntityFactory playerFactory;
     private Renderer renderer;
@@ -52,9 +35,9 @@ public class GameSystem {
     int time = 3, frames = 60, counter=0;
     private int level = 0;
     private final BulletHellGame game;
+    private GameObjectManager gom;
 
-    private EnemyManager enemyManager;
-
+    private GameEventManager gem;
     private SpriteBatch spriteBatch;
 
     public GameSystem(BulletHellGame game, SpriteBatch spriteBatch) {
@@ -67,13 +50,6 @@ public class GameSystem {
         loadSettings();
         assetHandler.load(settings.getAssets());
 
-        enemyList = new HashMap<>();
-        // Create player using factory
-        player = (Player) playerFactory.createEntity((float) Gdx.graphics.getWidth() / 2 - 66, 0, assetHandler,"Player", new Vector2(), 25, 5);
-
-        playerController = new PlayerController(player, settings.getPlayerSettings());
-        playerBullets = new ArrayList<>();
-
         background = new ScrollableBackground(assetHandler, 100);
         player_lives = assetHandler.getAssetTexture("lives");
 
@@ -81,7 +57,11 @@ public class GameSystem {
 
         renderer = new Renderer();
 
-        enemyManager = new EnemyManager(settings.getLevelInterpreter(), renderer);
+        gom = new GameObjectManager(renderer, assetHandler);
+
+        //TODO: move collision detection and relevant events to GEM
+        gem = new GameEventManager(gom);
+
 
         //Initialize score
         score = 0;
@@ -91,13 +71,8 @@ public class GameSystem {
 
     public void update(float time) {
         timeInSeconds += time;
-
-        enemyManager.update(timeInSeconds, time, assetHandler, spriteBatch);
-
-        enemyList = enemyManager.getEnemyList();
-
-        playerController.listen(playerBullets, assetHandler, time);
-        updatePlayerBullets();
+        gom.update(timeInSeconds, time);
+        gem.update(time, assetHandler);
         checkPlayerCollision();
         checkBulletCollision();
         checkEnemyBulletPlayerCollision();
@@ -110,8 +85,9 @@ public class GameSystem {
     //TODO: move this to separate collision detection class (deliverable 3)
     private void checkPlayerCollision()  { // Player collision with Enemy
         List<Enemy> allEnemies = new ArrayList<>();
-        enemyList.values().forEach(allEnemies::addAll);
+        gom.getEnemyList().values().forEach(allEnemies::addAll);
         Iterator<Enemy> enemyIterator = allEnemies.iterator();
+        Player player = gom.getPlayer();
         while(enemyIterator.hasNext()){
             Enemy enemy = enemyIterator.next();
             if(player.getHitbox().overlaps(enemy.getHitbox())){
@@ -131,9 +107,9 @@ public class GameSystem {
                     //re-write a reset method later
                     //level=0;
                     timeInSeconds = 0f;
-                    playerBullets.clear();
+//                    playerBullets.clear();
                     enemyBullets.clear();
-                    enemyManager.getEnemyList().clear();
+                    gom.getEnemyList().clear();
                     player.setLives(5);
                     player.setPosition(new Vector2(Gdx.graphics.getWidth() / 2f - 66, 0));  //need to replace it to diff. func.
                     game.setScreen(new GameOverScreen(game));
@@ -145,10 +121,10 @@ public class GameSystem {
 
     //TODO: move this to separate collision detection class (deliverable 3)
     private void checkBulletCollision(){ // Player bullet to enemy collision
-        for(Iterator<Bullet> bulletIterator = playerBullets.iterator(); bulletIterator.hasNext();){
+        for(Iterator<Bullet> bulletIterator = gom.getPlayerBulletManager().getBullets().iterator(); bulletIterator.hasNext();){
             Bullet bullet = bulletIterator.next();
             boolean bulletRemoved = false;
-            for(List<Enemy> enemies : enemyList.values()){
+            for(List<Enemy> enemies : gom.getEnemyList().values()){
                 for(Iterator<Enemy> enemyIterator = enemies.iterator(); enemyIterator.hasNext();){
                     Enemy enemy = enemyIterator.next();
                     if(bullet.getHitbox().overlaps(enemy.getHitbox())){
@@ -157,7 +133,7 @@ public class GameSystem {
                         score += enemy.getScore();
 
                         bulletIterator.remove();
-                        enemy.enemyHit(player.damage); //reducing  enemy health
+                        enemy.enemyHit(gom.getPlayer().damage); //reducing  enemy health
                         System.out.println("Bullet hit detected! - " + enemy.getHealth());
                         if(enemy.getHealth() <= 0) {
                             enemyIterator.remove();
@@ -180,7 +156,7 @@ public class GameSystem {
     //TODO: move this to separate collision detection class (deliverable 3)
     private void checkEnemyBulletPlayerCollision() { // Enemy Bullet to player collision
         Iterator<Bullet> bulletIterator = enemyBullets.iterator();
-
+        Player player = gom.getPlayer();
             while (bulletIterator.hasNext()) {
                 Bullet bullet = bulletIterator.next();
                 if (bullet.getHitbox().overlaps(player.getHitbox()) && !isCollided) {
@@ -200,9 +176,9 @@ public class GameSystem {
                         //re-write a reset method later
 
                         timeInSeconds = 0f;
-                        playerBullets.clear();
+//                        playerBullets.clear();
                         enemyBullets.clear();
-                        enemyManager.getEnemyList().clear();
+                        gom.getEnemyList().clear();
                         player.setLives(5);
                         player.setPosition(new Vector2(Gdx.graphics.getWidth() / 2f - 66, 0));  //need to replace it to diff. func.
                         game.setScreen(new GameOverScreen(game));
@@ -214,7 +190,8 @@ public class GameSystem {
     }
     //TODO: move this to enemy management class (deliverable 3)
     private void enemyShoot(float deltaTime) {
-        for (ArrayList<Enemy> enemies : enemyList.values()) {
+        Player player = gom.getPlayer();
+        for (ArrayList<Enemy> enemies : gom.getEnemyList().values()) {
             for (Enemy enemy : enemies) {
                 boolean isEnemyOnScreen = enemy.getPosition().y + enemy.sprite.getHeight() > 0 &&
                         enemy.getPosition().y < 720 &&
@@ -267,12 +244,9 @@ public class GameSystem {
         // combined renders
         update(time);
         background.render(spriteBatch);
-//        renderer.renderBackground(spriteBatch, background);
-        renderer.renderEntity(spriteBatch, player, true); // render player
-        enemyManager.renderEnemies(time, spriteBatch);
-        renderPlayerBullets();
+        gom.render(time, spriteBatch);
         renderEnemyBullets();
-        renderLives(spriteBatch, player.getLives());
+        renderLives(spriteBatch, gom.getPlayer().getLives());
         renderScore(spriteBatch);
     }
     private void renderScore(SpriteBatch spriteBatch) {
@@ -286,34 +260,15 @@ public class GameSystem {
         }
     }
     private void loadSettings() {
-        JsonUtil jsonUtil = new JsonUtil();
-        settings = jsonUtil.deserializeJson("settings/settings.json", Settings.class);
-    }
-    private void renderPlayerBullets() {
-        for (Bullet bullet : playerBullets) {
-            renderer.renderEntity(spriteBatch, bullet, true);
-        }
-    }
-    private void updatePlayerBullets() {
-        List<Bullet> removeList = new ArrayList<>();
-        for (Bullet bullet : playerBullets) {
-            if (bullet.getPosition().y > Gdx.graphics.getHeight()) {
-                removeList.add(bullet);
-            }
-            bullet.update();
-        }
-        if (!removeList.isEmpty()) {
-            playerBullets.removeAll(removeList);
-        }
+        settings = Settings.getInstance();
     }
     public void toMainMenu(){
         game.setScreen(new GameOverScreen(game));
     }
-
     //winning condition, need winning screen changes
     private void checkPlayerWon(boolean nextEnemy) {
         //Add winning condition
-        if(enemyManager.currentWave == 3 && !nextEnemy) {
+        if(gom.getEnemyManager().currentWave == 3 && !nextEnemy) {
             System.out.println("Player won - Game over");
             game.setScreen(new GameWinScreen(game));
         }

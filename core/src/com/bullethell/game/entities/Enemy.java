@@ -1,6 +1,8 @@
 package com.bullethell.game.entities;
 
+import com.bullethell.game.Patterns.observer.IObserver;
 import com.bullethell.game.systems.AssetHandler;
+import com.bullethell.game.utils.Event;
 
 public class Enemy extends Entity {
     private int health;
@@ -59,4 +61,18 @@ public class Enemy extends Entity {
     }
 
 
+    @Override
+    public void registerObserver(IObserver observer) {
+
+    }
+
+    @Override
+    public void removeObserver(IObserver observer) {
+
+    }
+
+    @Override
+    public void notifyObservers(Event event) {
+
+    }
 }

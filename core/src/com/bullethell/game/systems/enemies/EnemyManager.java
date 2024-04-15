@@ -1,9 +1,11 @@
-package com.bullethell.game.systems.Enemies;
+package com.bullethell.game.systems.enemies;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.bullethell.game.Patterns.observer.IObserver;
 import com.bullethell.game.controllers.MovementController;
 import com.bullethell.game.entities.Enemy;
 import com.bullethell.game.settings.LevelInterpreter;
+import com.bullethell.game.settings.Settings;
 import com.bullethell.game.systems.AssetHandler;
 import com.bullethell.game.utils.Renderer;
 import com.bullethell.game.utils.TimeUtils;
@@ -13,19 +15,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EnemyManager {
-    public EnemySpawner enemySpawner;
     private Renderer renderer;
-    private LevelInterpreter levelInterpreter;
-    private Map<String, ArrayList<Enemy>> enemyList;
-    private MovementController movementController;
     public int currentWave = -1;
+    public EnemySpawner enemySpawner;
+    private LevelInterpreter levelInterpreter;
+    private MovementController movementController;
+    private Map<String, ArrayList<Enemy>> enemyList;
 
-    public EnemyManager (LevelInterpreter levelInterpreter, Renderer renderer) {
-        enemyList = new HashMap<>();
-        enemySpawner = new EnemySpawner(levelInterpreter);
-        this.levelInterpreter = levelInterpreter;
+    private AssetHandler assetHandler;
+
+    public EnemyManager (AssetHandler assetHandler, Renderer renderer) {
         this.renderer = renderer;
+        this.enemyList = new HashMap<>();
+        this.assetHandler = assetHandler;
         this.movementController = new MovementController();
+        this.levelInterpreter = Settings.getInstance().getLevelInterpreter();
+        this.enemySpawner = new EnemySpawner(levelInterpreter);
     }
 
     public Map<String, ArrayList<Enemy>> getEnemyList() {
@@ -36,29 +41,26 @@ public class EnemyManager {
         return movementController;
     }
 
-    public void update (float seconds, float deltaTime, AssetHandler assetHandler, SpriteBatch spriteBatch) {
+    public void update (float seconds, float deltaTime, IObserver observer) {
         removeOldEnemies(seconds);
-        checkWaveAndSpawn(seconds, assetHandler);
+        checkWaveAndSpawn(seconds, assetHandler, observer);
         moveEnemies(deltaTime);
-//        renderEnemies(deltaTime, spriteBatch);
     }
 
-    private void checkWaveAndSpawn(float seconds, AssetHandler assetHandler) {
+    private void checkWaveAndSpawn(float seconds, AssetHandler assetHandler, IObserver observer) {
 
         for (int i = 0; i < levelInterpreter.getWaves().size(); i++) {
             LevelInterpreter.Wave wave = levelInterpreter.getWaves().get(i);
             if (seconds >= TimeUtils.convertToSeconds(wave.getStart()) && seconds <= TimeUtils.convertToSeconds(wave.getEnd())) {
                 if (currentWave != i) {
                     System.out.println("Spawning for wave" + i);
-                    spawnEnemies(wave, assetHandler);
+                    spawnEnemies(wave, assetHandler, observer);
                     currentWave = i;
                     break;
                 }
-
             }
         }
     }
-
     private void removeOldEnemies(float seconds) {
         for (int i = 0; i < levelInterpreter.getWaves().size(); i++) {
             LevelInterpreter.Wave wave = levelInterpreter.getWaves().get(i);
@@ -71,14 +73,13 @@ public class EnemyManager {
             }
         }
     }
-    private void spawnEnemies(LevelInterpreter.Wave wave, AssetHandler assetHandler) {
+    private void spawnEnemies(LevelInterpreter.Wave wave, AssetHandler assetHandler, IObserver observer) {
         for (LevelInterpreter.Enemy enemy: wave.getEnemies()) {
             if (enemyList.get(enemy.getType()) == null) {
-                enemyList.put(enemy.getType(), enemySpawner.getSpawn(enemy, assetHandler, movementController));
+                enemyList.put(enemy.getType(), enemySpawner.getSpawn(enemy, assetHandler, movementController, observer));
             }
         }
     }
-
     private void moveEnemies(float deltaTime) {
         if (currentWave != -1) {
             LevelInterpreter.Wave wave = levelInterpreter.getWaves().get(currentWave);
@@ -92,7 +93,6 @@ public class EnemyManager {
             }
         }
     }
-
     public void renderEnemies(float deltaTime, SpriteBatch spriteBatch) {
         if (currentWave != -1) {
             LevelInterpreter.Wave wave = levelInterpreter.getWaves().get(currentWave);

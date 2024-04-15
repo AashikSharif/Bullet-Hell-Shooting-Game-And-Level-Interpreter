@@ -31,8 +31,4 @@ public class Boss extends Enemy implements IShootable {
         else if(getType().equals("gruntB")) return 10000;
         return 0;
     }
-
-
-
 }
-
