@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.entities.Bullet;
 import com.bullethell.game.entities.Player;
 import com.bullethell.game.systems.AssetHandler;
+import com.bullethell.game.utils.Event;
 import com.bullethell.game.utils.Renderer;
 
 import java.util.ArrayList;
@@ -22,8 +23,8 @@ public class PlayerBulletManager {
         this.renderer = renderer;
     }
 
-    public void addBullet(Player player) {
-
+    public void addBullet(Event event) {
+        Player player = (Player) event.getSource();
         this.bullets.add(
                 new Bullet(
                         player.getPosition().x + (player.sprite.getWidth() / 2),

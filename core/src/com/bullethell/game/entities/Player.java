@@ -37,7 +37,7 @@ public class Player extends Entity implements IControllable, IShootable, IObserv
 
     @Override
     public void shoot() {
-        notifyObservers(new Event(Event.Type.PLAYER_SHOOT));
+        notifyObservers(new Event(Event.Type.PLAYER_SHOOT, this));
     }
     @Override
     public void moveUp(float speedFactor) {
@@ -58,7 +58,6 @@ public class Player extends Entity implements IControllable, IShootable, IObserv
     public void moveRight(float speedFactor) {
         this.position.x += speedFactor;
     }
-
 
     @Override
     public void slowMode(boolean isSlow) {
@@ -82,6 +81,15 @@ public class Player extends Entity implements IControllable, IShootable, IObserv
         this.lives = lives;
     }
 
+    public void resetPosition() {
+        this.setPosition(new Vector2(Gdx.graphics.getWidth() / 2f - 66, 0) );
+    }
+
+    public void reset() {
+        this.setLives(5);
+        resetPosition();
+    }
+
     @Override
     public void registerObserver(IObserver observer) {
         if (!this.getObservers().contains(observer)) {
@@ -91,7 +99,7 @@ public class Player extends Entity implements IControllable, IShootable, IObserv
 
     @Override
     public void removeObserver(IObserver observer) {
-        this.removeObserver(observer);
+        this.getObservers().remove(observer);
     }
 
     @Override

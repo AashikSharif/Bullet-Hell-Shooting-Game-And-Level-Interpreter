@@ -1,12 +1,16 @@
 package com.bullethell.game.systems;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.bullethell.game.BulletHellGame;
 import com.bullethell.game.Patterns.observer.IObservable;
 import com.bullethell.game.Patterns.observer.IObserver;
-import com.bullethell.game.entities.Bullet;
 import com.bullethell.game.entities.Enemy;
 import com.bullethell.game.entities.Entity;
 import com.bullethell.game.entities.Player;
+import com.bullethell.game.screens.GameOverScreen;
+import com.bullethell.game.systems.enemies.EnemyBulletManager;
 import com.bullethell.game.systems.enemies.EnemyManager;
 import com.bullethell.game.systems.player.PlayerBulletManager;
 import com.bullethell.game.systems.player.PlayerManager;
@@ -14,32 +18,39 @@ import com.bullethell.game.utils.Event;
 import com.bullethell.game.utils.Renderer;
 
 import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
 
 public class GameObjectManager implements IObserver {
-    private List<Bullet> enemyBullets;
-    private PlayerManager playerManager;
-    private PlayerBulletManager playerBulletManager;
     private EnemyManager enemyManager;
+    private PlayerManager playerManager;
+    private EnemyBulletManager enemyBulletManager;
+    private PlayerBulletManager playerBulletManager;
+    private Texture playerLives;
+    private BulletHellGame game;
+    private float timeInSeconds = 0f;
 
-    public GameObjectManager(Renderer renderer, AssetHandler assetHandler) {
+    public GameObjectManager(BulletHellGame game, Renderer renderer, AssetHandler assetHandler) {
         enemyManager = new EnemyManager(assetHandler, renderer);
         playerManager = new PlayerManager(assetHandler, renderer, this);
-        enemyBullets = new ArrayList<>();
+        enemyBulletManager = new EnemyBulletManager(assetHandler, renderer);
         playerBulletManager = new PlayerBulletManager(assetHandler, renderer);
+        this.playerLives = assetHandler.getAssetTexture("lives");
+        this.game = game;
     }
 
-    public void update(float seconds, float deltaTime) {
-//        playerManager.update(deltaTime);
-        enemyManager.update(seconds, deltaTime, this);
+    public void update(float deltaTime) {
+        timeInSeconds += deltaTime;
+        enemyManager.update(timeInSeconds, deltaTime, this, getPlayer());
         playerBulletManager.update(deltaTime);
+        enemyBulletManager.update(deltaTime);
     }
 
     public void render(float deltaTime, SpriteBatch spriteBatch) {
         playerManager.render(spriteBatch);
         enemyManager.renderEnemies(deltaTime, spriteBatch);
         playerBulletManager.render(spriteBatch);
+        enemyBulletManager.render(spriteBatch);
+        renderLives(spriteBatch, getPlayer().getLives());
     }
 
     public Map<String, ArrayList<Enemy>> getEnemyList() {
@@ -58,22 +69,67 @@ public class GameObjectManager implements IObserver {
         return playerBulletManager;
     }
 
-    public void addPlayerBullet (Player player) {
-        getPlayerBulletManager().addBullet(player);
+    public EnemyBulletManager getEnemyBulletManager() {
+        return enemyBulletManager;
+    }
+
+    private void addPlayerBullet(Event event) {
+        getPlayerBulletManager().addBullet(event);
+    }
+
+    private void addEnemyBullet(Event event) {
+        getEnemyBulletManager().addBullet(event);
+    }
+
+    private void renderLives(SpriteBatch spriteBatch, int lives) {
+        for(int i = 0; i < lives; i++) {
+            spriteBatch.draw(playerLives, Gdx.graphics.getWidth() - 50f / 2f * (i + 1) - 30,Gdx.graphics.getHeight() - 30, 30, 30);
+        }
+    }
+
+    private void playerCollidedWithEnemy() {
+        playerManager.getPlayer().resetPosition();
+        getEnemyBulletManager().clearBullets();
+    }
+
+    private void enemyBulletHitPlayer(Event event) {
+        playerManager.getPlayer().resetPosition();
+        getEnemyBulletManager().clearBullets();
+    }
+
+    private void gameOver(Event event) {
+        playerManager.getPlayer().resetPosition();
+        getEnemyBulletManager().clearBullets();
+        playerBulletManager.clearBullets();
+        enemyManager.getEnemyList().clear();
+        timeInSeconds = 0f;
+        game.setScreen(new GameOverScreen(game));
     }
 
     @Override
     public void onNotify(IObservable observable, Event event) {
-        if (observable instanceof Entity) {
-            Entity entity = ((Entity) observable);
+//        if (observable instanceof Entity) {
+//            Entity entity = ((Entity) observable);
 
             switch (event.getType()) {
                 case PLAYER_SHOOT:
-                    addPlayerBullet(playerManager.getPlayer());
+                    addPlayerBullet(event);
+                    break;
+                case ENEMY_SHOOT:
+                    addEnemyBullet(event);
+                    break;
+                case PLAYER_COLLIDED_ENEMY:
+                    playerCollidedWithEnemy();
+                    break;
+                case ENEMY_BULLET_HIT_PLAYER:
+                    enemyBulletHitPlayer(event);
+                    break;
+                case GAME_OVER:
+                    gameOver(event);
                     break;
                 default:
                     break;
             }
-        }
+//        }
     }
 }
