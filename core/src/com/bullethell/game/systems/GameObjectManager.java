@@ -111,7 +111,7 @@ public class GameObjectManager implements IObserver {
     }
 
     private void gameOver(Event event) {
-        playerManager.getPlayer().resetPosition();
+        playerManager.getPlayer().reset();
         getEnemyBulletManager().clearBullets();
         playerBulletManager.clearBullets();
         enemyManager.getEnemyList().clear();
