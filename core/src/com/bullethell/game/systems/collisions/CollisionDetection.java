@@ -17,6 +17,7 @@ public class CollisionDetection implements IObservable {
     private GameObjectManager gom;
     private ScoreManager scoreManager;
     private List<IObserver> observers;
+
     public CollisionDetection(GameObjectManager gom, ScoreManager scoreManager) {
         this.gom = gom;
         this.scoreManager = scoreManager;
@@ -31,14 +32,14 @@ public class CollisionDetection implements IObservable {
     }
 
     // Player collision with Enemy
-    private void checkPlayerCollision()  {
+    private void checkPlayerCollision() {
         List<Enemy> allEnemies = new ArrayList<>();
         gom.getEnemyList().values().forEach(allEnemies::addAll);
         Iterator<Enemy> enemyIterator = allEnemies.iterator();
         Player player = gom.getPlayer();
-        while(enemyIterator.hasNext()){
+        while (enemyIterator.hasNext()) {
             Enemy enemy = enemyIterator.next();
-            if(player.getHitbox().overlaps(enemy.getHitbox())){
+            if (player.getHitbox().overlaps(enemy.getHitbox())) {
 
                 //Decrement live for player
                 player.lostLive();
@@ -50,14 +51,15 @@ public class CollisionDetection implements IObservable {
         }
     }
 
-    private void checkBulletCollision(){ // Player bullet to enemy collision
-        for(Iterator<Bullet> bulletIterator = gom.getPlayerBulletManager().getBullets().iterator(); bulletIterator.hasNext();){
+    // Player bullet to enemy collision
+    private void checkBulletCollision() {
+        for (Iterator<Bullet> bulletIterator = gom.getPlayerBulletManager().getBullets().iterator(); bulletIterator.hasNext(); ) {
             Bullet bullet = bulletIterator.next();
             boolean bulletRemoved = false;
-            for(List<Enemy> enemies : gom.getEnemyList().values()){
-                for(Iterator<Enemy> enemyIterator = enemies.iterator(); enemyIterator.hasNext();){
+            for (List<Enemy> enemies : gom.getEnemyList().values()) {
+                for (Iterator<Enemy> enemyIterator = enemies.iterator(); enemyIterator.hasNext(); ) {
                     Enemy enemy = enemyIterator.next();
-                    if(bullet.getHitbox().overlaps(enemy.getHitbox())){
+                    if (bullet.getHitbox().overlaps(enemy.getHitbox())) {
 
                         //updating score
                         scoreManager.increaseScore(enemy.getScore());
@@ -65,7 +67,8 @@ public class CollisionDetection implements IObservable {
                         bulletIterator.remove();
                         enemy.enemyHit(gom.getPlayer().damage); //reducing  enemy health
                         System.out.println("Bullet hit detected! - " + enemy.getHealth());
-                        if(enemy.getHealth() <= 0) {
+                        if (enemy.getHealth() <= 0) {
+                            notifyObservers(new Event(Event.Type.EXPLOSION, enemy));
                             enemy.removeObserver(gom);
                             enemyIterator.remove();
                             scoreManager.increaseScore(enemy.getKillBonusScore());
@@ -75,7 +78,7 @@ public class CollisionDetection implements IObservable {
                         break;
                     }
                 }
-                if(bulletRemoved){
+                if (bulletRemoved) {
                     break;
                 }
             }

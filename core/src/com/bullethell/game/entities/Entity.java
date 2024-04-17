@@ -18,7 +18,7 @@ public abstract class Entity implements IObservable {
     public ShapeRenderer shapeRenderer;
     private List<IObserver> observers;
 
-    public Entity (float x, float y, String entity, AssetHandler assetHandler) {
+    public Entity(float x, float y, String entity, AssetHandler assetHandler) {
         this.position = new Vector2(x, y);
         this.sprite = new Sprite(assetHandler.getAssetTexture(entity));
         this.sprite.setPosition(x, y);
@@ -38,13 +38,13 @@ public abstract class Entity implements IObservable {
         this.observers = new ArrayList<>();
     }
 
-    public void update () {
+    public void update() {
         this.sprite.setPosition(position.x, position.y);
         this.hitbox.setPosition(position.x + sprite.getWidth() / 2 - hitbox.width / 2,
                 position.y + sprite.getHeight() / 2 - hitbox.height / 2);
     }
 
-        public Vector2 getPosition() {
+    public Vector2 getPosition() {
         return position;
     }
 

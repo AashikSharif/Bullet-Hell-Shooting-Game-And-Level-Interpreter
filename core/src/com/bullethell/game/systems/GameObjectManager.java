@@ -15,6 +15,7 @@ import com.bullethell.game.systems.enemies.EnemyManager;
 import com.bullethell.game.systems.player.PlayerBulletManager;
 import com.bullethell.game.systems.player.PlayerManager;
 import com.bullethell.game.utils.Event;
+import com.bullethell.game.utils.Explosion;
 import com.bullethell.game.utils.Renderer;
 
 import java.util.Map;
@@ -28,8 +29,12 @@ public class GameObjectManager implements IObserver {
     private Texture playerLives;
     private BulletHellGame game;
     private float timeInSeconds = 0f;
+    private Explosion explosion;
+
+    private AssetHandler assetHandler;
 
     public GameObjectManager(BulletHellGame game, Renderer renderer, AssetHandler assetHandler) {
+        this.assetHandler = assetHandler;
         enemyManager = new EnemyManager(assetHandler, renderer);
         playerManager = new PlayerManager(assetHandler, renderer, this);
         enemyBulletManager = new EnemyBulletManager(assetHandler, renderer);
@@ -43,6 +48,11 @@ public class GameObjectManager implements IObserver {
         enemyManager.update(timeInSeconds, deltaTime, this, getPlayer());
         playerBulletManager.update(deltaTime);
         enemyBulletManager.update(deltaTime);
+        if (explosion != null && !explosion.isFinished()) {
+            explosion.update(deltaTime);
+        } else {
+            explosion = null;
+        }
     }
 
     public void render(float deltaTime, SpriteBatch spriteBatch) {
@@ -51,6 +61,9 @@ public class GameObjectManager implements IObserver {
         playerBulletManager.render(spriteBatch);
         enemyBulletManager.render(spriteBatch);
         renderLives(spriteBatch, getPlayer().getLives());
+        if (explosion != null && !explosion.isFinished()) {
+            explosion.draw(spriteBatch);
+        }
     }
 
     public Map<String, ArrayList<Enemy>> getEnemyList() {
@@ -106,6 +119,13 @@ public class GameObjectManager implements IObserver {
         game.setScreen(new GameOverScreen(game));
     }
 
+    private void explosion(Event event) {
+        if (explosion == null || explosion.isFinished()) {
+            Entity entity = (Entity) event.getSource();
+            explosion = new Explosion(assetHandler, entity.getPosition());
+        }
+    }
+
     @Override
     public void onNotify(IObservable observable, Event event) {
 //        if (observable instanceof Entity) {
@@ -123,6 +143,9 @@ public class GameObjectManager implements IObserver {
                     break;
                 case ENEMY_BULLET_HIT_PLAYER:
                     enemyBulletHitPlayer(event);
+                    break;
+                case EXPLOSION:
+                    explosion(event);
                     break;
                 case GAME_OVER:
                     gameOver(event);

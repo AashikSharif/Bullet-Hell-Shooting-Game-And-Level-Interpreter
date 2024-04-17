@@ -3,6 +3,10 @@ package com.bullethell.game.systems.enemies;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.bullethell.game.Patterns.strategy.BulletStrategy;
+import com.bullethell.game.Patterns.strategy.DefaultBulletStrategy;
+import com.bullethell.game.Patterns.strategy.FibonacciBulletStrategy;
+import com.bullethell.game.Patterns.strategy.StarBulletStrategy;
 import com.bullethell.game.entities.Bullet;
 import com.bullethell.game.entities.Enemy;
 import com.bullethell.game.entities.Player;
@@ -18,11 +22,15 @@ public class EnemyBulletManager {
     private List<Bullet> bullets;
     private AssetHandler assetHandler;
     private Renderer renderer;
+    private BulletStrategy bulletStrategy;
 
     public EnemyBulletManager(AssetHandler assetHandler, Renderer renderer) {
         this.bullets = new ArrayList<>();
         this.assetHandler = assetHandler;
         this.renderer = renderer;
+//        this.bulletStrategy = new FibonacciBulletStrategy(10, 35);
+        this.bulletStrategy = new DefaultBulletStrategy();
+//        this.bulletStrategy = new StarBulletStrategy(5);
     }
 
     public void render(SpriteBatch spriteBatch) {
@@ -53,17 +61,9 @@ public class EnemyBulletManager {
     public void addBullet(Event event) {
         Enemy enemy = (Enemy) event.getSource();
         Player player = (Player) event.getDestination();
-        Vector2 direction = new Vector2(
-                player.getPosition().x + player.sprite.getWidth() / 2 - (enemy.getPosition().x + enemy.sprite.getWidth() / 2),
-                player.getPosition().y + player.sprite.getHeight() / 2 - (enemy.getPosition().y + enemy.sprite.getHeight() / 2)
-        ).nor();
-        float bulletSpeed = 3;
-        Vector2 velocity = direction.scl(bulletSpeed);
 
-        float bulletX = enemy.getPosition().x + (enemy.sprite.getWidth() / 2) - Bullet.HITBOX_WIDTH / 2;
-        float bulletY = enemy.getPosition().y - Bullet.HITBOX_HEIGHT;
-        Bullet enemyBullet = new Bullet(bulletX, bulletY, "bullet", velocity, 25, assetHandler);
-        bullets.add(enemyBullet);
+        List<Bullet> newBullets = bulletStrategy.createBullets(enemy, player, assetHandler);
+        bullets.addAll(newBullets);
     }
 
 }

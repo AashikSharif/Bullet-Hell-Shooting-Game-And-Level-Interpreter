@@ -29,7 +29,6 @@ public class GameSystem {
         renderer = new Renderer();
         gom = new GameObjectManager(game, renderer, assetHandler);
         gem = new GameEventManager(gom);
-
     }
 
     public void update(float time) {
