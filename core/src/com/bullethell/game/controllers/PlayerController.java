@@ -25,7 +25,7 @@ public class PlayerController {
         this.edgeDetector = new EdgeDetector(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
-    public void listen (List<Bullet> playerBullets, AssetHandler assetHandler, float time) {
+    public void listen (AssetHandler assetHandler, float time) {
         timeSinceLastShot += time;
         // if slow key is pressed, activate slow mode
         boolean isSlow = Gdx.input.isKeyPressed(Input.Keys.valueOf(playerSettings.getSlowMode()));
@@ -52,16 +52,7 @@ public class PlayerController {
 
         if (Gdx.input.isKeyPressed(Input.Keys.valueOf(playerSettings.getShoot())) && timeSinceLastShot >= coolDown) {
             timeSinceLastShot = 0;
-            playerBullets.add(
-                    new Bullet(
-                            player.getPosition().x + (player.sprite.getWidth() / 2),
-                            player.getPosition().y + player.sprite.getHeight(),
-                            "bullet",
-                            new Vector2(0, 5),
-                            player.damage,
-                            assetHandler
-                    )
-            );
+            player.shoot();
         }
 
         // edge detection

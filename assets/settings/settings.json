@@ -18,7 +18,8 @@
     "finalBoss": "finalBoss.png",
     "background": "space_background2.png",
     "bullet": "bullet.png",
-    "lives": "life_star.png"
+    "lives": "life_star.png",
+    "explosion": "explosion.png"
   },
   "levelInterpreter": {
     "difficulty": "easy",

@@ -1,7 +1,9 @@
 package com.bullethell.game.entities;
 
 import com.badlogic.gdx.math.Vector2;
+import com.bullethell.game.Patterns.observer.IObserver;
 import com.bullethell.game.systems.AssetHandler;
+import com.bullethell.game.utils.Event;
 
 public class Bullet extends Entity {
     private final Vector2 velocity;
@@ -27,5 +29,20 @@ public class Bullet extends Entity {
 
     public int getDamage() {
         return damage;
+    }
+
+    @Override
+    public void registerObserver(IObserver observer) {
+
+    }
+
+    @Override
+    public void removeObserver(IObserver observer) {
+
+    }
+
+    @Override
+    public void notifyObservers(Event event) {
+
     }
 }
