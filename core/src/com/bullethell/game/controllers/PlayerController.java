@@ -32,6 +32,9 @@ public class PlayerController {
         player.slowMode(isSlow);
         float speedFactor = isSlow ? playerSettings.getSlowSpeed() : playerSettings.getNormalSpeed();
 
+        if (Gdx.input.isKeyPressed(Input.Keys.valueOf(playerSettings.getCheatMode()))) {
+            player.cheatMode(true);
+        }
         // Player movement
 
         if (Gdx.input.isKeyPressed(Input.Keys.valueOf(playerSettings.getMoveUp()))) {
