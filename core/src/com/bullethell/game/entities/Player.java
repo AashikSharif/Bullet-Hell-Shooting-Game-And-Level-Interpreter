@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Player extends Entity implements IControllable, IShootable, IObservable {
     boolean isSlow = false;
-    boolean isCheat = false;
+    boolean isCheat;
     private static final float HITBOX_WIDTH = 30;
     private static final float HITBOX_HEIGHT = 30;
     public int damage;
@@ -82,6 +82,9 @@ public class Player extends Entity implements IControllable, IShootable, IObserv
 
     public int getLives() {
         return lives;
+    }
+    public boolean isCheatMode(){
+        return this.isCheat;
     }
 
     public void setLives(int lives) {
