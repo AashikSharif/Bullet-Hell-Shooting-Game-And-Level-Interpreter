@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.bullethell.game.BulletHellGame;
 import com.bullethell.game.Patterns.observer.IObservable;
 import com.bullethell.game.Patterns.observer.IObserver;
+import com.bullethell.game.controllers.SoundController;
 import com.bullethell.game.entities.Enemy;
 import com.bullethell.game.entities.Entity;
 import com.bullethell.game.entities.Player;
@@ -33,8 +34,13 @@ public class GameObjectManager implements IObserver {
 
     private AssetHandler assetHandler;
 
+    private SoundController soundController;
+    private SoundManager soundManager;
+
     public GameObjectManager(BulletHellGame game, Renderer renderer, AssetHandler assetHandler) {
         this.assetHandler = assetHandler;
+        soundManager = new SoundManager();
+        soundController = new SoundController(soundManager);
         enemyManager = new EnemyManager(assetHandler, renderer);
         playerManager = new PlayerManager(assetHandler, renderer, this);
         enemyBulletManager = new EnemyBulletManager(assetHandler, renderer);
@@ -134,21 +140,26 @@ public class GameObjectManager implements IObserver {
             switch (event.getType()) {
                 case PLAYER_SHOOT:
                     addPlayerBullet(event);
+                    soundController.playPlayerShootSound();
                     break;
                 case ENEMY_SHOOT:
                     addEnemyBullet(event);
+                    soundController.playEnemyShootSound();
                     break;
                 case PLAYER_COLLIDED_ENEMY:
                     playerCollidedWithEnemy();
                     break;
                 case ENEMY_BULLET_HIT_PLAYER:
+                    soundController.playExplosionSound();
                     enemyBulletHitPlayer(event);
                     break;
                 case EXPLOSION:
+                    soundController.playExplosionSound();
                     explosion(event);
                     break;
                 case GAME_OVER:
                     gameOver(event);
+                    soundController.playLostSound();
                     break;
                 default:
                     break;
