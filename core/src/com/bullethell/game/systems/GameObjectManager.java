@@ -134,9 +134,6 @@ public class GameObjectManager implements IObserver {
 
     @Override
     public void onNotify(IObservable observable, Event event) {
-//        if (observable instanceof Entity) {
-//            Entity entity = ((Entity) observable);
-
             switch (event.getType()) {
                 case PLAYER_SHOOT:
                     addPlayerBullet(event);
@@ -164,6 +161,5 @@ public class GameObjectManager implements IObserver {
                 default:
                     break;
             }
-//        }
     }
 }

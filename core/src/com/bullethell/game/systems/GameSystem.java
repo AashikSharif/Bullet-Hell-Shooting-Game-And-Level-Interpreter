@@ -51,7 +51,7 @@ public class GameSystem {
     //winning condition, need winning screen changes
     private void checkPlayerWon(boolean nextEnemy) {
         //Add winning condition
-        if(gom.getEnemyManager().currentWave == 3 && !nextEnemy) {
+        if(gom.getEnemyManager().currentWave == 3   && !nextEnemy) {
             System.out.println("Player won - Game over");
             game.setScreen(new GameWinScreen(game));
         }

@@ -72,6 +72,7 @@ public class GameWinScreen implements Screen {
 
         game.batch.draw(background, 0, 0, 1280, 720);
         game.batch.end();
+
         stage.act();
         stage.draw();
     }
