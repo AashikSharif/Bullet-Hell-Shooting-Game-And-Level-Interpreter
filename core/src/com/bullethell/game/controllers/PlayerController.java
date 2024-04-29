@@ -15,7 +15,7 @@ public class PlayerController {
     Player player;
     PlayerSettings playerSettings;
     EdgeDetector edgeDetector;
-
+    boolean isCheat = false;
     private float coolDown = 0;
     private float timeSinceLastShot = 0;
     public PlayerController (Player player, PlayerSettings playerSettings) {
@@ -31,7 +31,19 @@ public class PlayerController {
         boolean isSlow = Gdx.input.isKeyPressed(Input.Keys.valueOf(playerSettings.getSlowMode()));
         player.slowMode(isSlow);
         float speedFactor = isSlow ? playerSettings.getSlowSpeed() : playerSettings.getNormalSpeed();
-
+        boolean Cheat = Gdx.input.isKeyPressed(Input.Keys.valueOf(playerSettings.getCheatMode()));
+        if(Cheat){
+            if(!isCheat) {
+                isCheat = true;
+            }
+            else{
+                isCheat = false;
+            }
+            player.cheatMode(isCheat);
+        }
+        if(player.isCheatMode()){
+            player.setLives(5);
+        }
         // Player movement
 
         if (Gdx.input.isKeyPressed(Input.Keys.valueOf(playerSettings.getMoveUp()))) {
