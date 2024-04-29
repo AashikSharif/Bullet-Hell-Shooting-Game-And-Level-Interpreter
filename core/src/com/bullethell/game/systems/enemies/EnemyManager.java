@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.Map;
 
 public class EnemyManager {
-    private Renderer renderer;
+    private final Renderer renderer;
     public int currentWave = -1;
     public EnemySpawner enemySpawner;
-    private LevelInterpreter levelInterpreter;
-    private MovementController movementController;
-    private Map<String, ArrayList<Enemy>> enemyList;
-    private AssetHandler assetHandler;
+    private final LevelInterpreter levelInterpreter;
+    private final MovementController movementController;
+    private final Map<String, ArrayList<Enemy>> enemyList;
+    private final AssetHandler assetHandler;
     boolean isCollided = false;
     int time = 3, frames = 60, counter=0;
 
@@ -142,4 +142,6 @@ public class EnemyManager {
         if (counter == time * frames) {isCollided = false;}
 
     }
+
+    //make a hard coded function for spiral bullets
 }

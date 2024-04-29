@@ -8,6 +8,7 @@ import com.bullethell.game.controllers.IControllable;
 import com.bullethell.game.controllers.IShootable;
 import com.bullethell.game.systems.AssetHandler;
 import com.bullethell.game.utils.Event;
+import com.bullethell.game.systems.GameObjectManager;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class Player extends Entity implements IControllable, IShootable, IObserv
     public int damage;
     private int lives;
     private static Player player;
+    private GameObjectManager gom;
     private Player(float x, float y, AssetHandler assetHandler, int damage, int lives) {
         super(x, y, "player", assetHandler);
         this.lives = lives; //Initialize the lives of the player
@@ -69,9 +71,9 @@ public class Player extends Entity implements IControllable, IShootable, IObserv
     }
 
     public boolean isGameOver() {
-        if (lives > 0) return false;
-        return true;
+        return lives <= 0;
     }
+
 
     public int getLives() {
         return lives;

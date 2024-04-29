@@ -6,6 +6,7 @@ import com.bullethell.game.entities.Enemy;
 public class CircularMovement implements MovementStrategy {
     private float centerX, centerY, radius, angularVelocity;
     private float angle;
+    Enemy centerEnemy;
 
     public CircularMovement(float centerX, float centerY, float radius, float angularVelocity, int totalEnemies) {
         this.centerX = centerX;
@@ -23,6 +24,12 @@ public class CircularMovement implements MovementStrategy {
         float y = centerY + radius * (float)Math.sin(angle);
         enemy.setPosition(new Vector2(x, y));
         enemy.update();
+    }
+    public CircularMovement(Enemy centerEnemy, float radius, float angularVelocity, int totalEnemies) {
+        this.centerEnemy = centerEnemy;
+        this.radius = radius;
+        this.angularVelocity = angularVelocity;
+        this.angle = (float) ((2 * Math.PI) / totalEnemies);
     }
 
     @Override

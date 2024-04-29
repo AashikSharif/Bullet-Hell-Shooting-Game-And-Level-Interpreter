@@ -14,9 +14,9 @@ import java.util.Iterator;
 import java.util.List;
 
 public class CollisionDetection implements IObservable {
-    private GameObjectManager gom;
-    private ScoreManager scoreManager;
-    private List<IObserver> observers;
+    private final GameObjectManager gom;
+    private final ScoreManager scoreManager;
+    private final List<IObserver> observers;
 
     public CollisionDetection(GameObjectManager gom, ScoreManager scoreManager) {
         this.gom = gom;
@@ -73,6 +73,7 @@ public class CollisionDetection implements IObservable {
                             enemyIterator.remove();
                             scoreManager.increaseScore(enemy.getKillBonusScore());
 //                            checkPlayerWon(false);
+//                            gom.gameSystem.checkPlayerWon(gom.getEnemyManager().getEnemyList().isEmpty());
                         }
                         bulletRemoved = true;
                         break;
@@ -104,7 +105,6 @@ public class CollisionDetection implements IObservable {
                 break;
             }
         }
-
     }
 
     private void checkGameOver(Event.Type type) {
@@ -115,6 +115,16 @@ public class CollisionDetection implements IObservable {
             notifyObservers(new Event(Event.Type.GAME_OVER));
         }
     }
+
+//    private void checkGameWin(Event.Type type){
+//        Player player = gom.getPlayer();
+//        if(player.isGameWin()) {
+//            notifyObservers(new Event(type));
+//        }
+//        else{
+//            notifyObservers(new Event(Event.Type.GAME_WIN));
+//        }
+//    }
 
     @Override
     public void registerObserver(IObserver observer) {

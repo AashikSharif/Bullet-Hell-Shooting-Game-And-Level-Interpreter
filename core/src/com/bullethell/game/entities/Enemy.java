@@ -1,8 +1,11 @@
 package com.bullethell.game.entities;
 
 import com.bullethell.game.Patterns.observer.IObserver;
+import com.bullethell.game.Patterns.strategy.BulletStrategy;
 import com.bullethell.game.systems.AssetHandler;
 import com.bullethell.game.utils.Event;
+
+import java.util.List;
 
 public class Enemy extends Entity {
     private int health;
@@ -13,10 +16,14 @@ public class Enemy extends Entity {
     private float shootCoolDown = 2.0f;
     private float timeSinceLatShot = 0;
 
+    private BulletStrategy bulletStrategy;
+    private final AssetHandler assetHandler;
+
     public Enemy(float x, float y, AssetHandler assetHandler, String type) {
         super(x, y, type, assetHandler);
         this.health = 100; // temporary, get from config later
         this.type = type;
+        this.assetHandler = assetHandler;
     }
 
     public boolean isReadyToShoot(float deltaTime) {
@@ -26,6 +33,18 @@ public class Enemy extends Entity {
             return true;
         }
         return false;
+    }
+
+    public void shoot(Player player) {
+        if (bulletStrategy != null && isReadyToShoot(0)) {
+            List<Bullet> bullets = bulletStrategy.createBullets(this, player, assetHandler);
+            // Code to add bullets to the game
+            resetShootTimer();
+        }
+    }
+
+    public void setBulletStrategy(BulletStrategy strategy) {
+        this.bulletStrategy = strategy;
     }
 
     public void resetShootTimer() {

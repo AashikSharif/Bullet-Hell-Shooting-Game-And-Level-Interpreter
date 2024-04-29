@@ -2,11 +2,7 @@ package com.bullethell.game.systems.enemies;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
-import com.bullethell.game.Patterns.strategy.BulletStrategy;
-import com.bullethell.game.Patterns.strategy.DefaultBulletStrategy;
-import com.bullethell.game.Patterns.strategy.FibonacciBulletStrategy;
-import com.bullethell.game.Patterns.strategy.StarBulletStrategy;
+import com.bullethell.game.Patterns.strategy.*;
 import com.bullethell.game.entities.Bullet;
 import com.bullethell.game.entities.Enemy;
 import com.bullethell.game.entities.Player;
@@ -28,9 +24,10 @@ public class EnemyBulletManager {
         this.bullets = new ArrayList<>();
         this.assetHandler = assetHandler;
         this.renderer = renderer;
-//        this.bulletStrategy = new FibonacciBulletStrategy(10, 35);
+        //this.bulletStrategy = new FibonacciBulletStrategy(10, 35);
         this.bulletStrategy = new DefaultBulletStrategy();
-//        this.bulletStrategy = new StarBulletStrategy(5);
+        //this.bulletStrategy = new StarBulletStrategy(5);
+//        this.bulletStrategy = new SpiralBulletStrategy(2,35);
     }
 
     public void render(SpriteBatch spriteBatch) {

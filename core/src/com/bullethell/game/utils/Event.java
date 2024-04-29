@@ -8,6 +8,7 @@ public class Event {
         BULLET_HIT_ENEMY,
         ENEMY_BULLET_HIT_PLAYER,
         GAME_OVER,
+        GAME_WIN, //clean
         EXPLOSION,
     }
 

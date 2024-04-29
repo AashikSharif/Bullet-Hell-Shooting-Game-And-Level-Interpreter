@@ -3,21 +3,23 @@
   "playerSettings": {
     "normalSpeed": 5.0,
     "slowSpeed": 1.0,
-    "moveUp": "Up",
-    "moveDown": "Down",
-    "moveLeft": "Left",
-    "moveRight": "Right",
+    "moveUp": "W",
+    "moveDown": "S",
+    "moveLeft": "A",
+    "moveRight": "D",
     "slowMode": "L-Shift",
     "shoot": "Space"
   },
   "assets": {
-    "player": "player.png",
+    "player": "spaceship.png",
     "gruntA": "typeA.png",
     "gruntB": "typeB.png",
     "midBoss": "midBoss2.png",
+    "invisible": "bullet.png",
     "finalBoss": "finalBoss.png",
     "background": "space_background2.png",
-    "bullet": "bullet.png",
+    "bullet": "laser.png",
+    "playerBullet": "laserPlayer.png",
     "lives": "life_star.png",
     "explosion": "explosion.png"
   },
@@ -26,7 +28,7 @@
     "waves": [
       {
         "start": "0",
-        "end": "0:48",
+        "end": "0:10",
         "enemies": [
           {
             "type": "gruntA",
@@ -37,8 +39,8 @@
         ]
       },
       {
-        "start": "0:48",
-        "end": "1:15",
+        "start": "0:11",
+        "end": "0:15",
         "enemies": [
           {
             "type": "midBoss",
@@ -49,8 +51,8 @@
         ]
       },
       {
-        "start": "1:15",
-        "end": "1:32",
+        "start": "0:15",
+        "end": "0:20",
         "enemies": [
           {
             "type": "gruntB",
@@ -61,8 +63,8 @@
         ]
       },
       {
-        "start": "1:32",
-        "end": "3:00",
+        "start": "0:20",
+        "end": "0:25",
         "enemies": [
           {
             "type": "finalBoss",

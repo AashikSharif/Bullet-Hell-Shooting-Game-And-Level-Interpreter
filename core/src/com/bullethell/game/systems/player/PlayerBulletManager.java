@@ -29,7 +29,7 @@ public class PlayerBulletManager {
                 new Bullet(
                         player.getPosition().x + (player.sprite.getWidth() / 2),
                         player.getPosition().y + player.sprite.getHeight(),
-                        "bullet",
+                        "playerBullet",
                         new Vector2(0, 5),
                         player.damage,
                         assetHandler

@@ -11,6 +11,7 @@ import com.bullethell.game.entities.Enemy;
 import com.bullethell.game.entities.Entity;
 import com.bullethell.game.entities.Player;
 import com.bullethell.game.screens.GameOverScreen;
+import com.bullethell.game.screens.GameWinScreen;
 import com.bullethell.game.systems.enemies.EnemyBulletManager;
 import com.bullethell.game.systems.enemies.EnemyManager;
 import com.bullethell.game.systems.player.PlayerBulletManager;
@@ -31,8 +32,9 @@ public class GameObjectManager implements IObserver {
     private BulletHellGame game;
     private float timeInSeconds = 0f;
     private Explosion explosion;
-
     private AssetHandler assetHandler;
+    public GameSystem gameSystem;
+    private final SpriteBatch spriteBatch;
 
     private SoundController soundController;
     private SoundManager soundManager;
@@ -47,6 +49,8 @@ public class GameObjectManager implements IObserver {
         playerBulletManager = new PlayerBulletManager(assetHandler, renderer);
         this.playerLives = assetHandler.getAssetTexture("lives");
         this.game = game;
+        spriteBatch = new SpriteBatch();
+        gameSystem = new GameSystem(game,spriteBatch);
     }
 
     public void update(float deltaTime) {
@@ -59,6 +63,13 @@ public class GameObjectManager implements IObserver {
         } else {
             explosion = null;
         }
+       //gameSystem.checkPlayerWon();
+//        if(isGameWon()){
+//            game.setScreen(new GameWinScreen(game));
+//        }
+//        if(playerManager.getPlayer().isGameWin(timeInSeconds) || (enemyManager.getEnemyList().get("finalBoss").isEmpty()) ||  (enemyManager.getEnemyList().get("midBoss").isEmpty())|| (enemyManager.getEnemyList().get("gruntA").isEmpty()) || (enemyManager.getEnemyList().get("gruntB").isEmpty())){
+//
+//        }
     }
 
     public void render(float deltaTime, SpriteBatch spriteBatch) {
@@ -125,12 +136,25 @@ public class GameObjectManager implements IObserver {
         game.setScreen(new GameOverScreen(game));
     }
 
+    private void gameWin(Event event){
+        gameSystem.checkPlayerWon();
+        //gameSystem.checkPlayerWon(false);
+        playerManager.getPlayer().reset();
+        getEnemyBulletManager().clearBullets();
+        playerBulletManager.clearBullets();
+        enemyManager.getEnemyList().clear();
+        timeInSeconds = 0f;
+
+    }
+
     private void explosion(Event event) {
         if (explosion == null || explosion.isFinished()) {
             Entity entity = (Entity) event.getSource();
             explosion = new Explosion(assetHandler, entity.getPosition());
         }
     }
+
+
 
     @Override
     public void onNotify(IObservable observable, Event event) {
@@ -161,6 +185,9 @@ public class GameObjectManager implements IObserver {
                     gameOver(event);
                     soundController.playLostSound();
                     break;
+                case GAME_WIN:
+                    gameWin(event);
+                    soundController.playWinSound();
                 default:
                     break;
             }
