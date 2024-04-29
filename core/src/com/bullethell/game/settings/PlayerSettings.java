@@ -9,7 +9,7 @@ public class PlayerSettings {
     private String moveRight;
     private String slowMode;
     private String shoot;
-
+    private String cheat;
     public PlayerSettings () {}
 
     public float getNormalSpeed() {
@@ -38,6 +38,9 @@ public class PlayerSettings {
 
     public String getSlowMode() {
         return slowMode;
+    }
+    public String getCheatMode() {
+        return cheat;
     }
 
     public String getShoot() {
@@ -70,6 +73,9 @@ public class PlayerSettings {
 
     public void setSlowMode(String slowMode) {
         this.slowMode = slowMode;
+    }
+    public void setCheatMode(String cheat) {
+        this.cheat = cheat;
     }
 
 

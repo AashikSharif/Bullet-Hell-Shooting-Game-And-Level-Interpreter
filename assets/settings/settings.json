@@ -8,7 +8,8 @@
     "moveLeft": "Left",
     "moveRight": "Right",
     "slowMode": "L-Shift",
-    "shoot": "Space"
+    "shoot": "Space",
+    "cheat": "0"
   },
   "assets": {
     "player": "player.png",
