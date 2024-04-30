@@ -74,6 +74,8 @@ public class LevelInterpreter {
         private int lives;
         private int health;
 
+        private List<Strategy> strategies;
+
         // getters and setters
 
         public String getType() {
@@ -107,6 +109,14 @@ public class LevelInterpreter {
         public void setHealth(int health) {
             this.health = health;
         }
+
+        public List<Strategy> getStrategies() {
+            return strategies;
+        }
+
+        public void setStrategies(List<Strategy> strategies) {
+            this.strategies = strategies;
+        }
     }
 
     public static class DifficultySettings {
@@ -119,6 +129,37 @@ public class LevelInterpreter {
 
         public void setBulletSpeed(int bulletSpeed) {
             this.bulletSpeed = bulletSpeed;
+        }
+    }
+
+    public static class Strategy {
+        private String start;
+        private String end;
+        private String strategy;
+
+        // getters and setters
+        public String getStart() {
+            return start;
+        }
+
+        public void setStart(String start) {
+            this.start = start;
+        }
+
+        public String getEnd() {
+            return end;
+        }
+
+        public void setEnd(String end) {
+            this.end = end;
+        }
+
+        public String getStrategy() {
+            return strategy;
+        }
+
+        public void setStrategy(String strategy) {
+            this.strategy = strategy;
         }
     }
 }

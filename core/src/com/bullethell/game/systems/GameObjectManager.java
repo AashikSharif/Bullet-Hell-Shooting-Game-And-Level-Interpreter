@@ -13,6 +13,7 @@ import com.bullethell.game.entities.Player;
 import com.bullethell.game.screens.GameOverScreen;
 import com.bullethell.game.systems.enemies.EnemyBulletManager;
 import com.bullethell.game.systems.enemies.EnemyManager;
+import com.bullethell.game.systems.enemies.EnemyStrategyCheck;
 import com.bullethell.game.systems.player.PlayerBulletManager;
 import com.bullethell.game.systems.player.PlayerManager;
 import com.bullethell.game.systems.score.ScoreManager;
@@ -37,6 +38,8 @@ public class GameObjectManager implements IObserver {
     private SoundManager soundManager;
     public ScoreManager scoreManager;
 
+    private EnemyStrategyCheck enemyStrategyCheck;
+
     public GameObjectManager(BulletHellGame game, Renderer renderer, AssetHandler assetHandler) {
         this.assetHandler = assetHandler;
         soundManager = new SoundManager();
@@ -47,12 +50,16 @@ public class GameObjectManager implements IObserver {
         playerBulletManager = new PlayerBulletManager(assetHandler, renderer);
         this.playerLives = assetHandler.getAssetTexture("lives");
         this.scoreManager = new ScoreManager();
+        this.enemyStrategyCheck = new EnemyStrategyCheck(enemyManager, enemyBulletManager);
         this.game = game;
     }
 
     public void update(float deltaTime) {
         timeInSeconds += deltaTime;
         enemyManager.update(timeInSeconds, deltaTime, this, getPlayer());
+
+        enemyStrategyCheck.update(timeInSeconds);
+
         playerBulletManager.update(deltaTime);
         enemyBulletManager.update(deltaTime);
         if (explosion != null && !explosion.isFinished()) {

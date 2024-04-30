@@ -32,18 +32,12 @@ public class PlayerController {
         player.slowMode(isSlow);
         float speedFactor = isSlow ? playerSettings.getSlowSpeed() : playerSettings.getNormalSpeed();
         boolean Cheat = Gdx.input.isKeyPressed(Input.Keys.valueOf(playerSettings.getCheatMode()));
-        if(Cheat){
-            if(!isCheat) {
-                isCheat = true;
-            }
-            else{
-                isCheat = false;
-            }
+        if (Cheat){
+            isCheat = !isCheat;
+            System.out.println("Cheat activated: " +  isCheat);
             player.cheatMode(isCheat);
         }
-        if(player.isCheatMode()){
-            player.setLives(5);
-        }
+
         // Player movement
 
         if (Gdx.input.isKeyPressed(Input.Keys.valueOf(playerSettings.getMoveUp()))) {
