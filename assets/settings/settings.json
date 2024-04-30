@@ -24,6 +24,17 @@
   },
   "levelInterpreter": {
     "difficulty": "easy",
+    "difficultySettings": {
+      "easy": {
+        "bulletSpeed": 3
+      },
+      "medium": {
+        "bulletSpeed": 6
+      },
+      "hard": {
+        "bulletSpeed": 9
+      }
+    },
     "waves": [
       {
         "start": "0",

@@ -1,10 +1,13 @@
 package com.bullethell.game.settings;
 
 import java.util.List;
+import java.util.Map;
 
 public class LevelInterpreter {
     private String difficulty;
     private List<Wave> waves;
+
+    private Map<String, DifficultySettings> difficultySettings;
 
     // getters and setters
 
@@ -23,6 +26,14 @@ public class LevelInterpreter {
 
     public void setWaves(List<Wave> waves) {
         this.waves = waves;
+    }
+
+    public Map<String, DifficultySettings> getDifficultySettings() {
+        return difficultySettings;
+    }
+
+    public void setDifficultySettings(Map<String, DifficultySettings> difficultySettings) {
+        this.difficultySettings = difficultySettings;
     }
 
     public static class Wave {
@@ -95,6 +106,19 @@ public class LevelInterpreter {
 
         public void setHealth(int health) {
             this.health = health;
+        }
+    }
+
+    public static class DifficultySettings {
+        private int bulletSpeed;
+
+        // Getters and setters
+        public int getBulletSpeed() {
+            return bulletSpeed;
+        }
+
+        public void setBulletSpeed(int bulletSpeed) {
+            this.bulletSpeed = bulletSpeed;
         }
     }
 }

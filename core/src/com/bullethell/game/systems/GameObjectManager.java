@@ -31,9 +31,7 @@ public class GameObjectManager implements IObserver {
     private BulletHellGame game;
     private float timeInSeconds = 0f;
     private Explosion explosion;
-
     private AssetHandler assetHandler;
-
     private SoundController soundController;
     private SoundManager soundManager;
 

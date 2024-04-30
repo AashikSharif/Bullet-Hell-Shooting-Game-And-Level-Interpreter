@@ -4,6 +4,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.entities.Bullet;
 import com.bullethell.game.entities.Enemy;
 import com.bullethell.game.entities.Player;
+import com.bullethell.game.settings.LevelInterpreter;
+import com.bullethell.game.settings.Settings;
 import com.bullethell.game.systems.AssetHandler;
 
 import java.util.ArrayList;
@@ -19,6 +21,10 @@ public class FibonacciBulletStrategy implements BulletStrategy {
     }
     @Override
     public List<Bullet> createBullets(Enemy enemy, Player player, AssetHandler assetHandler) {
+        LevelInterpreter levelInterpreter = Settings.getInstance().getLevelInterpreter();
+        String difficulty = levelInterpreter.getDifficulty();
+        float bulletSpeed = levelInterpreter.getDifficultySettings().get(difficulty).getBulletSpeed();
+
         List<Bullet> bullets = new ArrayList<>();
         int a = 0, b = 1;
         float initialAngle = 0; // Initial angle
@@ -30,7 +36,7 @@ public class FibonacciBulletStrategy implements BulletStrategy {
 
             // direction
             Vector2 direction = new Vector2((float) Math.cos(Math.toRadians(initialAngle)), (float) Math.sin(Math.toRadians(initialAngle))).nor();
-            float bulletSpeed = 3;
+
             Vector2 velocity = direction.scl(bulletSpeed);
 
             // Position
