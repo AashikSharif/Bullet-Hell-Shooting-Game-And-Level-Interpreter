@@ -19,7 +19,9 @@ import com.bullethell.game.systems.player.PlayerManager;
 import com.bullethell.game.utils.Event;
 import com.bullethell.game.utils.Explosion;
 import com.bullethell.game.utils.Renderer;
+import com.bullethell.game.utils.TimeUtils;
 
+import java.sql.Time;
 import java.util.Map;
 import java.util.ArrayList;
 
@@ -38,6 +40,7 @@ public class GameObjectManager implements IObserver {
 
     private SoundController soundController;
     private SoundManager soundManager;
+    private GameWinScreen gameWinScreen;
 
     public GameObjectManager(BulletHellGame game, Renderer renderer, AssetHandler assetHandler) {
         this.assetHandler = assetHandler;
@@ -51,9 +54,11 @@ public class GameObjectManager implements IObserver {
         this.game = game;
         spriteBatch = new SpriteBatch();
         gameSystem = new GameSystem(game,spriteBatch);
+        gameWinScreen = new GameWinScreen(game);
     }
 
     public void update(float deltaTime) {
+        checkPlayerWon();
         timeInSeconds += deltaTime;
         enemyManager.update(timeInSeconds, deltaTime, this, getPlayer());
         playerBulletManager.update(deltaTime);
@@ -63,16 +68,10 @@ public class GameObjectManager implements IObserver {
         } else {
             explosion = null;
         }
-       //gameSystem.checkPlayerWon();
-//        if(isGameWon()){
-//            game.setScreen(new GameWinScreen(game));
-//        }
-//        if(playerManager.getPlayer().isGameWin(timeInSeconds) || (enemyManager.getEnemyList().get("finalBoss").isEmpty()) ||  (enemyManager.getEnemyList().get("midBoss").isEmpty())|| (enemyManager.getEnemyList().get("gruntA").isEmpty()) || (enemyManager.getEnemyList().get("gruntB").isEmpty())){
-//
-//        }
     }
 
     public void render(float deltaTime, SpriteBatch spriteBatch) {
+//        checkPlayerWon();
         playerManager.render(spriteBatch);
         enemyManager.renderEnemies(deltaTime, spriteBatch);
         playerBulletManager.render(spriteBatch);
@@ -81,6 +80,19 @@ public class GameObjectManager implements IObserver {
         if (explosion != null && !explosion.isFinished()) {
             explosion.draw(spriteBatch);
         }
+    }
+    private void checkPlayerWon() {
+        //Add winning condition
+        //last wave and all the enemies are dead and the time is not up and player's live > 0
+        if(timeInSeconds > TimeUtils.convertToSeconds("3:00") && playerManager.getPlayer().getLives() > 0) {
+            System.out.println("Player won - Game over");
+            gameWinScreen.toWinScreen();
+        }
+        else if(timeInSeconds < TimeUtils.convertToSeconds("3:00") && isEnemyListEmpty() && playerManager.getPlayer().getLives() > 0){
+            System.out.println("Player won - Game over");
+            gameWinScreen.toWinScreen();
+        }
+
     }
 
     public Map<String, ArrayList<Enemy>> getEnemyList() {
@@ -117,6 +129,13 @@ public class GameObjectManager implements IObserver {
         }
     }
 
+    private boolean isEnemyListEmpty(){
+        return enemyManager.getEnemyList().get("gruntA").isEmpty() &&
+                enemyManager.getEnemyList().get("gruntB").isEmpty() &&
+                enemyManager.getEnemyList().get("midBoss").isEmpty() &&
+                enemyManager.getEnemyList().get("finalBoss").isEmpty();
+    }
+
     private void playerCollidedWithEnemy() {
         playerManager.getPlayer().resetPosition();
         getEnemyBulletManager().clearBullets();
@@ -137,8 +156,7 @@ public class GameObjectManager implements IObserver {
     }
 
     private void gameWin(Event event){
-        gameSystem.checkPlayerWon();
-        //gameSystem.checkPlayerWon(false);
+        //checkPlayerWon();
         playerManager.getPlayer().reset();
         getEnemyBulletManager().clearBullets();
         playerBulletManager.clearBullets();
@@ -146,6 +164,7 @@ public class GameObjectManager implements IObserver {
         timeInSeconds = 0f;
 
     }
+
 
     private void explosion(Event event) {
         if (explosion == null || explosion.isFinished()) {

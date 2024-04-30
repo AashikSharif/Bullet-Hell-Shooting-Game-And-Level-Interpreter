@@ -36,7 +36,7 @@ public class GameSystem {
     public void update(float time) {
         gom.update(time);
         gem.update(time, assetHandler);
-        checkPlayerWon();
+//        checkPlayerWon();
         background.update(time);
     }
     public void render(float time) {
@@ -52,13 +52,13 @@ public class GameSystem {
         game.setScreen(new GameOverScreen(game));
     }
     //winning condition, need winning screen changes
-    public void checkPlayerWon() {
-        //Add winning condition
-        if(gom.getEnemyManager().currentWave==3) {
-            System.out.println("Player won - Game over");
-            game.setScreen(new GameWinScreen(game));
-        }
-    }
+//    public void checkPlayerWon() {
+//        //Add winning condition
+//        if(gom.getEnemyManager().currentWave==3 &&  (gom.getEnemyManager().getEnemyList().get("midBoss").isEmpty())) {
+//            System.out.println("Player won - Game over");
+//            game.setScreen(new GameWinScreen(game));
+//        }
+//    }
 
 //    public void checkPlayerWon(boolean nextEnemy) {
 //        //Add winning condition
