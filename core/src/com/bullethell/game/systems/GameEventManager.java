@@ -11,8 +11,7 @@ public class GameEventManager {
     private CollisionDetection collisionDetection;
 
     public GameEventManager(GameObjectManager gom) {
-        this.scoreManager = new ScoreManager();
-        this.collisionDetection = new CollisionDetection(gom, scoreManager);
+        this.collisionDetection = new CollisionDetection(gom, gom.scoreManager);
         playerController = new PlayerController(gom.getPlayer(), Settings.getInstance().getPlayerSettings());
     }
 
