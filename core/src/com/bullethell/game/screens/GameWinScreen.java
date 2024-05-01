@@ -103,4 +103,9 @@ public class GameWinScreen implements Screen {
         background.dispose();
         skin.dispose();
     }
+
+
+    public void toWinScreen(){
+        game.setScreen(new GameWinScreen(game));
+    }
 }

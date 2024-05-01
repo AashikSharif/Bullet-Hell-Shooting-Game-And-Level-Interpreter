@@ -53,4 +53,12 @@ public class SoundManager implements Disposable {
         }
         backgroundMusic.dispose();
     }
+    public void stopMusic()
+    {
+        backgroundMusic.dispose();
+    }
+    public void playMusic()
+    {
+        loadMusic();
+    }
 }

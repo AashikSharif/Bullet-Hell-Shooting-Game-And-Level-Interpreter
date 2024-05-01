@@ -15,7 +15,6 @@ import com.bullethell.game.controllers.SoundController;
 import com.bullethell.game.systems.SoundManager;
 
 public class MainMenuScreen implements Screen {
-
     private final BulletHellGame game;
     private final Texture background;
     private final Stage stage;
@@ -61,6 +60,7 @@ public class MainMenuScreen implements Screen {
                 // Change to the game screen
                 fadeOut = true;
                 game.setScreen(new GameScreen(game));
+                soundcontroller.stopMusic();
                 soundManager.dispose();
             }
         });
@@ -75,6 +75,7 @@ public class MainMenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y){
                 System.out.println("clicked");
                 ToOption(); //change this to options screen then from there to mode screen
+
             }
         });
 
@@ -99,6 +100,7 @@ public class MainMenuScreen implements Screen {
 
     public void ToOption() {
         game.setScreen(new OptionsScreen(game));
+        soundManager.dispose();
     }
 
 
