@@ -8,7 +8,8 @@
     "moveLeft": "Left",
     "moveRight": "Right",
     "slowMode": "L-Shift",
-    "shoot": "Space"
+    "shoot": "Space",
+    "cheat": "0"
   },
   "assets": {
     "player": "player.png",
@@ -23,6 +24,17 @@
   },
   "levelInterpreter": {
     "difficulty": "easy",
+    "difficultySettings": {
+      "easy": {
+        "bulletSpeed": 3
+      },
+      "medium": {
+        "bulletSpeed": 6
+      },
+      "hard": {
+        "bulletSpeed": 9
+      }
+    },
     "waves": [
       {
         "start": "0",
@@ -30,9 +42,16 @@
         "enemies": [
           {
             "type": "gruntA",
-            "count": 20,
+            "count": 1,
             "lives": 1,
-            "health": 50
+            "health": 50,
+            "strategies": [
+              {
+                "start": "0",
+                "end": "0:48",
+                "strategy": "spiral"
+              }
+            ]
           }
         ]
       },
@@ -44,7 +63,19 @@
             "type": "midBoss",
             "count": 1,
             "lives": 1,
-            "health": 500
+            "health": 500,
+            "strategies": [
+              {
+                "start": "0:48",
+                "end": "1:00",
+                "strategy": "default"
+              },
+              {
+                "start": "1:00",
+                "end": "1:15",
+                "strategy": "star"
+              }
+            ]
           }
         ]
       },
@@ -56,7 +87,14 @@
             "type": "gruntB",
             "count": 20,
             "lives": 1,
-            "health": 150
+            "health": 150,
+            "strategies": [
+              {
+                "start": "1:15",
+                "end": "1:32",
+                "strategy": "default"
+              }
+            ]
           }
         ]
       },
@@ -68,7 +106,24 @@
             "type": "finalBoss",
             "count": 1,
             "lives": 1,
-            "health": 1000
+            "health": 1000,
+            "strategies": [
+              {
+                "start": "1:32",
+                "end": "2:00",
+                "strategy": "default"
+              },
+              {
+                "start": "2:00",
+                "end": "2:15",
+                "strategy": "star"
+              },
+              {
+                "start": "2:15",
+                "end": "3:00",
+                "strategy": "fib"
+              }
+            ]
           }
         ]
       }

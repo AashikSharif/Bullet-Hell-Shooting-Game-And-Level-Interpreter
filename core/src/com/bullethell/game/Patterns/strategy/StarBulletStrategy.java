@@ -4,6 +4,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.entities.Bullet;
 import com.bullethell.game.entities.Enemy;
 import com.bullethell.game.entities.Player;
+import com.bullethell.game.settings.LevelInterpreter;
+import com.bullethell.game.settings.Settings;
 import com.bullethell.game.systems.AssetHandler;
 
 import java.util.ArrayList;
@@ -12,7 +14,6 @@ import java.util.List;
 public class StarBulletStrategy implements BulletStrategy {
     private int numArms;
     private float angleBetweenArms;
-    private float bulletSpeed = 3;
 
     public StarBulletStrategy(int numArms) {
         this.numArms = numArms;
@@ -21,6 +22,10 @@ public class StarBulletStrategy implements BulletStrategy {
 
     @Override
     public List<Bullet> createBullets(Enemy enemy, Player player, AssetHandler assetHandler) {
+        LevelInterpreter levelInterpreter = Settings.getInstance().getLevelInterpreter();
+        String difficulty = levelInterpreter.getDifficulty();
+        float bulletSpeed = levelInterpreter.getDifficultySettings().get(difficulty).getBulletSpeed();
+
         List<Bullet> bullets = new ArrayList<>();
         float currentAngle = 0;
 

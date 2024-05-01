@@ -14,17 +14,18 @@ import com.bullethell.game.screens.GameOverScreen;
 import com.bullethell.game.screens.GameWinScreen;
 import com.bullethell.game.systems.enemies.EnemyBulletManager;
 import com.bullethell.game.systems.enemies.EnemyManager;
+import com.bullethell.game.systems.enemies.EnemyStrategyCheck;
 import com.bullethell.game.systems.player.PlayerBulletManager;
 import com.bullethell.game.systems.player.PlayerManager;
+import com.bullethell.game.systems.score.ScoreManager;
 import com.bullethell.game.utils.Event;
 import com.bullethell.game.utils.Explosion;
 import com.bullethell.game.utils.Renderer;
 import com.bullethell.game.utils.TimeUtils;
 
-import java.sql.Time;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 public class GameObjectManager implements IObserver {
     private EnemyManager enemyManager;
@@ -38,10 +39,11 @@ public class GameObjectManager implements IObserver {
     private AssetHandler assetHandler;
     public GameSystem gameSystem;
     private final SpriteBatch spriteBatch;
-
     private SoundController soundController;
     private SoundManager soundManager;
     private GameWinScreen gameWinScreen;
+    public ScoreManager scoreManager;
+    private EnemyStrategyCheck enemyStrategyCheck;
 
     public GameObjectManager(BulletHellGame game, Renderer renderer, AssetHandler assetHandler) {
         this.assetHandler = assetHandler;
@@ -52,9 +54,11 @@ public class GameObjectManager implements IObserver {
         enemyBulletManager = new EnemyBulletManager(assetHandler, renderer);
         playerBulletManager = new PlayerBulletManager(assetHandler, renderer);
         this.playerLives = assetHandler.getAssetTexture("lives");
+        this.scoreManager = new ScoreManager();
+        this.enemyStrategyCheck = new EnemyStrategyCheck(enemyManager, enemyBulletManager);
         this.game = game;
         spriteBatch = new SpriteBatch();
-        gameSystem = new GameSystem(game,spriteBatch);
+        gameSystem = new GameSystem(game, spriteBatch);
         gameWinScreen = new GameWinScreen(game);
     }
 
@@ -62,6 +66,9 @@ public class GameObjectManager implements IObserver {
         checkPlayerWon();
         timeInSeconds += deltaTime;
         enemyManager.update(timeInSeconds, deltaTime, this, getPlayer());
+
+        enemyStrategyCheck.update(timeInSeconds);
+
         playerBulletManager.update(deltaTime);
         enemyBulletManager.update(deltaTime);
         if (explosion != null && !explosion.isFinished()) {
@@ -72,7 +79,7 @@ public class GameObjectManager implements IObserver {
     }
 
     public void render(float deltaTime, SpriteBatch spriteBatch) {
-//        checkPlayerWon();
+        scoreManager.render(spriteBatch);
         playerManager.render(spriteBatch);
         enemyManager.renderEnemies(deltaTime, spriteBatch);
         playerBulletManager.render(spriteBatch);
@@ -82,17 +89,17 @@ public class GameObjectManager implements IObserver {
             explosion.draw(spriteBatch);
         }
     }
+
     private void checkPlayerWon() {
         //Add winning condition
         //last wave and all the enemies are dead and the time is not up and player's live > 0
-        if(timeInSeconds > TimeUtils.convertToSeconds("3:00") && playerManager.getPlayer().getLives() > 0) {
+        if (timeInSeconds > TimeUtils.convertToSeconds("3:00") && playerManager.getPlayer().getLives() > 0) {
             System.out.println("Player won - Game over");
             gameWinScreen.toWinScreen();
             soundController.stopMusic();
             soundController.playWinSound();
-        }
-        else if(timeInSeconds < TimeUtils.convertToSeconds("3:00") && timeInSeconds > TimeUtils.convertToSeconds("0:01")
-                && enemyManager.getCurrentWave()==3 && isEnemyListEmpty() && playerManager.getPlayer().getLives() > 0){
+        } else if (timeInSeconds < TimeUtils.convertToSeconds("3:00") && timeInSeconds > TimeUtils.convertToSeconds("0:01")
+                && enemyManager.getCurrentWave() == 3 && isEnemyListEmpty() && playerManager.getPlayer().getLives() > 0) {
             System.out.println("Player won - Game over");
             gameWinScreen.toWinScreen();
             soundController.stopMusic();
@@ -130,8 +137,8 @@ public class GameObjectManager implements IObserver {
     }
 
     private void renderLives(SpriteBatch spriteBatch, int lives) {
-        for(int i = 0; i < lives; i++) {
-            spriteBatch.draw(playerLives, Gdx.graphics.getWidth() - 50f / 2f * (i + 1) - 30,Gdx.graphics.getHeight() - 30, 30, 30);
+        for (int i = 0; i < lives; i++) {
+            spriteBatch.draw(playerLives, Gdx.graphics.getWidth() - 50f / 2f * (i + 1) - 30, Gdx.graphics.getHeight() - 30, 30, 30);
         }
     }
 
@@ -145,7 +152,7 @@ public class GameObjectManager implements IObserver {
     private boolean isListEmpty(String key) {
         List<Enemy> list = enemyManager.getEnemyList().get(key);
         return list == null || list.isEmpty();
-}
+    }
 
     private void playerCollidedWithEnemy() {
         playerManager.getPlayer().resetPosition();
@@ -166,7 +173,7 @@ public class GameObjectManager implements IObserver {
         game.setScreen(new GameOverScreen(game));
     }
 
-    private void gameWin(Event event){
+    private void gameWin(Event event) {
         //checkPlayerWon();
         playerManager.getPlayer().reset();
         getEnemyBulletManager().clearBullets();
@@ -185,12 +192,8 @@ public class GameObjectManager implements IObserver {
     }
 
 
-
     @Override
     public void onNotify(IObservable observable, Event event) {
-//        if (observable instanceof Entity) {
-//            Entity entity = ((Entity) observable);
-
         switch (event.getType()) {
             case PLAYER_SHOOT:
                 addPlayerBullet(event);
@@ -216,12 +219,8 @@ public class GameObjectManager implements IObserver {
                 soundController.stopMusic();
                 soundController.playLostSound();
                 break;
-       /*     case GAME_WIN:
-                gameWin(event);
-                soundController.playWinSound();*/
             default:
                 break;
         }
-//        }
     }
 }
