@@ -143,5 +143,8 @@ public class EnemyManager {
 
     }
 
+    public int getCurrentWave(){
+        return currentWave;
+    }
     //make a hard coded function for spiral bullets
 }

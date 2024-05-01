@@ -22,6 +22,7 @@ import com.bullethell.game.utils.Renderer;
 import com.bullethell.game.utils.TimeUtils;
 
 import java.sql.Time;
+import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 
@@ -88,11 +89,10 @@ public class GameObjectManager implements IObserver {
             System.out.println("Player won - Game over");
             gameWinScreen.toWinScreen();
         }
-        else if(timeInSeconds < TimeUtils.convertToSeconds("3:00") && isEnemyListEmpty() && playerManager.getPlayer().getLives() > 0){
+        else if(enemyManager.getCurrentWave() == 3 && timeInSeconds < TimeUtils.convertToSeconds("3:00") && timeInSeconds >TimeUtils.convertToSeconds("0:01") && isEnemyListEmpty() && playerManager.getPlayer().getLives() > 0){
             System.out.println("Player won - Game over");
             gameWinScreen.toWinScreen();
         }
-
     }
 
     public Map<String, ArrayList<Enemy>> getEnemyList() {
@@ -129,11 +129,16 @@ public class GameObjectManager implements IObserver {
         }
     }
 
-    private boolean isEnemyListEmpty(){
-        return enemyManager.getEnemyList().get("gruntA").isEmpty() &&
-                enemyManager.getEnemyList().get("gruntB").isEmpty() &&
-                enemyManager.getEnemyList().get("midBoss").isEmpty() &&
-                enemyManager.getEnemyList().get("finalBoss").isEmpty();
+    private boolean isEnemyListEmpty() {
+        return isListEmpty("gruntA") &&
+                isListEmpty("gruntB") &&
+                isListEmpty("midBoss") &&
+                isListEmpty("finalBoss");
+    }
+
+    private boolean isListEmpty(String key) {
+        List<Enemy> list = enemyManager.getEnemyList().get(key);
+        return list == null || list.isEmpty();
     }
 
     private void playerCollidedWithEnemy() {

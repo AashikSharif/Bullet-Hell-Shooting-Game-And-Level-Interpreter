@@ -18,8 +18,8 @@
     "invisible": "bullet.png",
     "finalBoss": "finalBoss.png",
     "background": "space_background2.png",
-    "bullet": "laser.png",
-    "playerBullet": "laserPlayer.png",
+    "bullet": "bullet.png",
+    "playerBullet": "bullet.png",
     "lives": "life_star.png",
     "explosion": "explosion.png"
   },
