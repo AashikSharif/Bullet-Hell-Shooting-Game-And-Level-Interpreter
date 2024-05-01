@@ -1,0 +1,79 @@
+{
+  "global": {},
+  "playerSettings": {
+    "normalSpeed": 5.0,
+    "slowSpeed": 1.0,
+    "moveUp": "W",
+    "moveDown": "S",
+    "moveLeft": "A",
+    "moveRight": "D",
+    "slowMode": "L-Shift",
+    "shoot": "Space"
+  },
+  "assets": {
+    "player": "spaceship.png",
+    "gruntA": "typeA.png",
+    "gruntB": "typeB.png",
+    "midBoss": "midBoss2.png",
+    "invisible": "bullet.png",
+    "finalBoss": "finalBoss.png",
+    "background": "space_background2.png",
+    "bullet": "bullet.png",
+    "playerBullet": "bullet.png",
+    "lives": "life_star.png",
+    "explosion": "explosion.png"
+  },
+  "levelInterpreter": {
+    "difficulty": "easy",
+    "waves": [
+      {
+        "start": "0",
+        "end": "0:10",
+        "enemies": [
+          {
+            "type": "gruntA",
+            "count": 20,
+            "lives": 1,
+            "health": 50
+          }
+        ]
+      },
+      {
+        "start": "0:11",
+        "end": "0:15",
+        "enemies": [
+          {
+            "type": "midBoss",
+            "count": 1,
+            "lives": 1,
+            "health": 500
+          }
+        ]
+      },
+      {
+        "start": "0:15",
+        "end": "0:20",
+        "enemies": [
+          {
+            "type": "gruntB",
+            "count": 20,
+            "lives": 1,
+            "health": 150
+          }
+        ]
+      },
+      {
+        "start": "0:20",
+        "end": "0:25",
+        "enemies": [
+          {
+            "type": "finalBoss",
+            "count": 1,
+            "lives": 1,
+            "health": 1000
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,78 +1,41 @@
 package com.bullethell.game;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.bullethell.game.screens.MainMenuScreen;
+import com.bullethell.game.settings.Settings;
+import com.bullethell.game.utils.JsonUtil;
 
-public class BulletHellGame extends Game implements InputProcessor {
-	SpriteBatch batch;
-	Texture img;
-	
-	@Override
-	public void create () {
-		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
-	}
+public class BulletHellGame extends Game {
+    public SpriteBatch batch;
 
-	@Override
-	public void render () {
-		ScreenUtils.clear(1, 0, 0, 1);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
-	}
-	
-	@Override
-	public void dispose () {
-		batch.dispose();
-		img.dispose();
-	}
+    public Settings settings;
 
-	@Override
-	public boolean keyDown(int i) {
-		return false;
-	}
+    @Override
+    public void create() {
+        preflight();
+        batch = new SpriteBatch();
+        this.setScreen(new MainMenuScreen(this));
 
-	@Override
-	public boolean keyUp(int i) {
-		return false;
-	}
+    }
 
-	@Override
-	public boolean keyTyped(char c) {
-		return false;
-	}
+    public Settings getSettings() {
+        return settings;
+    }
 
-	@Override
-	public boolean touchDown(int i, int i1, int i2, int i3) {
-		return false;
-	}
+    @Override
+    public void render() {
+        super.render();
+    }
 
-	@Override
-	public boolean touchUp(int i, int i1, int i2, int i3) {
-		return false;
-	}
+    @Override
+    public void dispose() {
+        batch.dispose();
 
-	@Override
-	public boolean touchCancelled(int i, int i1, int i2, int i3) {
-		return false;
-	}
+    }
 
-	@Override
-	public boolean touchDragged(int i, int i1, int i2) {
-		return false;
-	}
-
-	@Override
-	public boolean mouseMoved(int i, int i1) {
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(float v, float v1) {
-		return false;
-	}
+    private void preflight() {
+        JsonUtil jsonUtil = new JsonUtil();
+        settings = jsonUtil.deserializeJson("settings/settings.json", Settings.class);
+    }
 }
