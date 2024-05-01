@@ -37,7 +37,9 @@ public class PlayerController {
             System.out.println("Cheat activated: " +  isCheat);
             player.cheatMode(isCheat);
         }
-
+        if(player.isCheatMode()){
+            player.setLives(5);
+        }
         // Player movement
 
         if (Gdx.input.isKeyPressed(Input.Keys.valueOf(playerSettings.getMoveUp()))) {
