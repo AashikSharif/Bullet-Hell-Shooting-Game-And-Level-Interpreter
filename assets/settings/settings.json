@@ -68,7 +68,7 @@
               {
                 "start": "0:48",
                 "end": "1:00",
-                "strategy": "default"
+                "strategy": "rotate"
               },
               {
                 "start": "1:00",

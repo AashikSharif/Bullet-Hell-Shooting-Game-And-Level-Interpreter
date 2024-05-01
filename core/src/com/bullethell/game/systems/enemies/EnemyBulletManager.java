@@ -81,6 +81,9 @@ public class EnemyBulletManager {
             case "spiral":
                 this.bulletStrategy = new SpiralBulletStrategy(25, 35);
                 break;
+            case "rotate":
+                this.bulletStrategy = new RotateBulletStrategy(15,0.01f);
+                break;
         }
     }
 }
