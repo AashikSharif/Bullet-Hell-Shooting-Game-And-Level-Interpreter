@@ -30,7 +30,7 @@ public class SoundManager implements Disposable {
         soundMap.put("player-lose",Gdx.audio.newSound(Gdx.files.internal("Sounds/8-bit-video-game-lose-sound-version.mp3")));
     }
 
-    private void loadMusic() {
+    public void loadMusic() {
         // Load background music
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("Sounds/8bit-music-for-game.mp3"));
         backgroundMusic.setLooping(true);
@@ -52,5 +52,13 @@ public class SoundManager implements Disposable {
             sound.dispose();
         }
         backgroundMusic.dispose();
+    }
+    public void stopMusic()
+    {
+        backgroundMusic.dispose();
+    }
+    public void playMusic()
+    {
+        loadMusic();
     }
 }

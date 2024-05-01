@@ -142,4 +142,7 @@ public class EnemyManager {
         if (counter == time * frames) {isCollided = false;}
 
     }
+
+    public int getCurrentWave()
+    {return currentWave;}
 }
