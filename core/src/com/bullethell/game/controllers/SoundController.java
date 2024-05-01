@@ -27,4 +27,12 @@ public class SoundController {
         soundManager.playSound("player-win");
     }
 
+    public void stopMusic(){
+        soundManager.stopMusic();
+    }
+    public void startMusic()
+    {
+        soundManager.playMusic();
+    }
+
 }

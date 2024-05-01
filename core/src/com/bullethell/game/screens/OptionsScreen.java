@@ -11,10 +11,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.bullethell.game.BulletHellGame;
+import com.bullethell.game.controllers.SoundController;
 import com.bullethell.game.settings.PlayerSettings;
 import com.bullethell.game.settings.Settings;
+import com.bullethell.game.systems.SoundManager;
 import com.bullethell.game.utils.JsonUtil;
-import jdk.tools.jmod.Main;
 
 import java.util.HashMap;
 
@@ -25,6 +26,9 @@ public class OptionsScreen implements Screen {
     private final Stage stage;
     private final Skin skin;
     private Settings settings;
+    private SoundManager soundManager = new SoundManager();
+    private SoundController soundcontroller = new SoundController(soundManager);;
+
 
     private final HashMap<String, String> controlMappings = new HashMap<>();
 
@@ -69,6 +73,10 @@ public class OptionsScreen implements Screen {
                 // Save controlMappings to a file
                 saveControlMappings();
                 game.setScreen(new MainMenuScreen(game));
+
+                soundcontroller.stopMusic();
+                soundManager.dispose();
+
             }
         });
 
@@ -173,6 +181,8 @@ public class OptionsScreen implements Screen {
 
     private void toMainMenu(){
         game.setScreen(new MainMenuScreen(game));
+        soundcontroller.stopMusic();
+        soundManager.dispose();
     }
 
     @Override
