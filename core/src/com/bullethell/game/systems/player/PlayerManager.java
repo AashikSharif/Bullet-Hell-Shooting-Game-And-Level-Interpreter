@@ -36,7 +36,7 @@ public class PlayerManager {
     }
 
     public void render(SpriteBatch spriteBatch) {
-        renderer.renderEntity(spriteBatch, player, true);
+        renderer.renderEntity(spriteBatch, player, false);
     }
 
     public Player getPlayer() {

@@ -28,7 +28,7 @@ public class GameSystem {
         background = new ScrollableBackground(assetHandler, 100);
         renderer = new Renderer();
         gom = new GameObjectManager(game, renderer, assetHandler);
-        gem = new GameEventManager(gom);
+        gem = new GameEventManager(gom, spriteBatch);
     }
 
     public void update(float time) {

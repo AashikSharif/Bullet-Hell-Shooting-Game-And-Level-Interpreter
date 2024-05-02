@@ -12,9 +12,14 @@ import com.bullethell.game.entities.Entity;
 import com.bullethell.game.entities.Player;
 import com.bullethell.game.screens.GameOverScreen;
 import com.bullethell.game.screens.GameWinScreen;
+import com.bullethell.game.settings.LevelInterpreter;
+import com.bullethell.game.settings.Settings;
 import com.bullethell.game.systems.enemies.EnemyBulletManager;
 import com.bullethell.game.systems.enemies.EnemyManager;
 import com.bullethell.game.systems.enemies.EnemyStrategyCheck;
+import com.bullethell.game.systems.inversion.BaseInversion;
+import com.bullethell.game.systems.inversion.HorizontalInversion;
+import com.bullethell.game.systems.inversion.VerticalInversion;
 import com.bullethell.game.systems.player.PlayerBulletManager;
 import com.bullethell.game.systems.player.PlayerManager;
 import com.bullethell.game.systems.score.ScoreManager;
@@ -44,6 +49,9 @@ public class GameObjectManager implements IObserver {
     private GameWinScreen gameWinScreen;
     public ScoreManager scoreManager;
     private EnemyStrategyCheck enemyStrategyCheck;
+    private BaseInversion inversion;
+    private float eventEndTime = 0f;
+    private WaveText waveText;
 
     public GameObjectManager(BulletHellGame game, Renderer renderer, AssetHandler assetHandler) {
         this.assetHandler = assetHandler;
@@ -61,34 +69,98 @@ public class GameObjectManager implements IObserver {
         spriteBatch = new SpriteBatch();
         gameSystem = new GameSystem(game, spriteBatch);
         gameWinScreen = new GameWinScreen(game);
+        this.waveText = new WaveText();
+
     }
 
     public void update(float deltaTime) {
         checkPlayerWon();
         timeInSeconds += deltaTime;
         enemyManager.update(timeInSeconds, deltaTime, this, getPlayer());
-
         enemyStrategyCheck.update(timeInSeconds);
-
         playerBulletManager.update(deltaTime);
         enemyBulletManager.update(deltaTime);
+
         if (explosion != null && !explosion.isFinished()) {
             explosion.update(deltaTime);
         } else {
             explosion = null;
         }
+        waveText.update(timeInSeconds);
+
     }
 
     public void render(float deltaTime, SpriteBatch spriteBatch) {
-        scoreManager.render(spriteBatch);
+        if (inversion != null) {
+            inversion.applyInversion(spriteBatch);
+        }
+
         playerManager.render(spriteBatch);
         enemyManager.renderEnemies(deltaTime, spriteBatch);
         playerBulletManager.render(spriteBatch);
         enemyBulletManager.render(spriteBatch);
-        renderLives(spriteBatch, getPlayer().getLives());
+
         if (explosion != null && !explosion.isFinished()) {
             explosion.draw(spriteBatch);
         }
+
+        if (inversion != null) {
+            inversion.resetInversion(spriteBatch);
+        }
+
+        renderLives(spriteBatch, getPlayer().getLives());
+        scoreManager.render(spriteBatch);
+        waveText.render(spriteBatch);
+    }
+
+    public void checkInversion(float deltaTime) {
+        float currentTime = timeInSeconds;
+
+        if (inversion != null && currentTime <= eventEndTime) {
+            inversion.update(deltaTime);
+            System.out.println("Updating inversion effect");
+        }
+
+        if (inversion != null && currentTime > eventEndTime) {
+            inversion.toggleInversion();
+            inversion = null;
+            System.out.println("Event ended, toggling back inversion.");
+        }
+
+        if (inversion == null) {
+            LevelInterpreter.Wave wave = Settings.getInstance().getLevelInterpreter().getWaves().get(enemyManager.getCurrentWave());
+            List<LevelInterpreter.Enemy> enemyWave = wave.getEnemies();
+
+            for (LevelInterpreter.Enemy enemy : enemyWave) {
+                LevelInterpreter.Event currentEvent = getCurrentEvent(enemy.getEvents(), (long) currentTime);
+                if (currentEvent != null) {
+                    switch (currentEvent.getEvent()) {
+                        case "horizontal-invert":
+                            inversion = new HorizontalInversion();
+                            break;
+                        case "vertical-invert":
+                            inversion = new VerticalInversion();
+                            break;
+                    }
+                    inversion.toggleInversion();
+                    eventEndTime = TimeUtils.convertToSeconds(currentEvent.getEnd());
+                    System.out.println("New event started, toggling inversion.");
+                    break;
+                }
+            }
+        }
+    }
+
+    public static LevelInterpreter.Event getCurrentEvent(List<LevelInterpreter.Event> events, long currentTime) {
+        for (LevelInterpreter.Event event : events) {
+            long startTime = TimeUtils.convertToSeconds(event.getStart());
+            long endTime = TimeUtils.convertToSeconds(event.getEnd());
+
+            if (currentTime >= startTime && currentTime <= endTime) {
+                return event;
+            }
+        }
+        return null;
     }
 
     private void checkPlayerWon() {
@@ -97,12 +169,14 @@ public class GameObjectManager implements IObserver {
         if (timeInSeconds > TimeUtils.convertToSeconds("3:00") && playerManager.getPlayer().getLives() > 0) {
             System.out.println("Player won - Game over");
             gameWinScreen.toWinScreen();
+            scoreManager.saveHighScore(Settings.getInstance());
             soundController.stopMusic();
             soundController.playWinSound();
         } else if (timeInSeconds < TimeUtils.convertToSeconds("3:00") && timeInSeconds > TimeUtils.convertToSeconds("0:01")
                 && enemyManager.getCurrentWave() == 3 && isEnemyListEmpty() && playerManager.getPlayer().getLives() > 0) {
             System.out.println("Player won - Game over");
             gameWinScreen.toWinScreen();
+            scoreManager.saveHighScore(Settings.getInstance());
             soundController.stopMusic();
             soundController.playWinSound();
         }
@@ -162,11 +236,13 @@ public class GameObjectManager implements IObserver {
     private void playerCollidedWithEnemy() {
         playerManager.getPlayer().resetPosition();
         getEnemyBulletManager().clearBullets();
+        scoreManager.saveHighScore(Settings.getInstance());
     }
 
     private void enemyBulletHitPlayer(Event event) {
         playerManager.getPlayer().resetPosition();
         getEnemyBulletManager().clearBullets();
+
     }
 
     private void gameOver(Event event) {
@@ -175,6 +251,7 @@ public class GameObjectManager implements IObserver {
         playerBulletManager.clearBullets();
         enemyManager.getEnemyList().clear();
         timeInSeconds = 0f;
+        scoreManager.saveHighScore(Settings.getInstance());
         game.setScreen(new GameOverScreen(game));
     }
 
@@ -185,9 +262,9 @@ public class GameObjectManager implements IObserver {
         playerBulletManager.clearBullets();
         enemyManager.getEnemyList().clear();
         timeInSeconds = 0f;
+        scoreManager.saveHighScore(Settings.getInstance());
 
     }
-
 
     private void explosion(Event event) {
         if (explosion == null || explosion.isFinished()) {
@@ -195,7 +272,6 @@ public class GameObjectManager implements IObserver {
             explosion = new Explosion(assetHandler, entity.getPosition());
         }
     }
-
 
     @Override
     public void onNotify(IObservable observable, Event event) {

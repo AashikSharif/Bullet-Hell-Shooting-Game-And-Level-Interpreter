@@ -10,8 +10,11 @@ public class Settings {
     private PlayerSettings playerSettings;
     private Map<String, String> assets;
     private LevelInterpreter levelInterpreter;
+    private Map<String, String> bulletSprites;
+    private int highScore;
 
-    public Settings () {}
+    public Settings() {
+    }
 
     public static synchronized Settings getInstance() {
         if (instance == null) {
@@ -59,5 +62,21 @@ public class Settings {
 
     public void setLevelInterpreter(LevelInterpreter levelInterpreter) {
         this.levelInterpreter = levelInterpreter;
+    }
+
+    public Map<String, String> getBulletSprites() {
+        return bulletSprites;
+    }
+
+    public void setBulletSprites(Map<String, String> bulletSprites) {
+        this.bulletSprites = bulletSprites;
+    }
+
+    public int getHighScore() {
+        return highScore;
+    }
+
+    public void setHighScore(int highScore) {
+        this.highScore = highScore;
     }
 }

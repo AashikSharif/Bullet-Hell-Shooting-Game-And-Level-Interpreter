@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.entities.Bullet;
 import com.bullethell.game.entities.Player;
+import com.bullethell.game.settings.Settings;
 import com.bullethell.game.systems.AssetHandler;
 import com.bullethell.game.utils.Event;
 import com.bullethell.game.utils.Renderer;
@@ -27,11 +28,12 @@ public class PlayerBulletManager {
     }
 
     public void addBullet(Event event) {
+        String bulletSprite = Settings.getInstance().getBulletSprites().get("player");
         Player player = (Player) event.getSource();
             Bullet bullet = new Bullet(
                     player.getPosition().x + player.sprite.getWidth() / 2,
                     player.getPosition().y + player.sprite.getHeight(),
-                    "bullet",
+                    bulletSprite,
                     new Vector2(0, 5),
                     player.damage,
                     assetHandler

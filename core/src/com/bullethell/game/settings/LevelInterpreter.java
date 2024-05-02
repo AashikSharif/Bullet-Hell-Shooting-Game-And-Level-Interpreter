@@ -6,7 +6,6 @@ import java.util.Map;
 public class LevelInterpreter {
     private String difficulty;
     private List<Wave> waves;
-
     private Map<String, DifficultySettings> difficultySettings;
 
     // getters and setters
@@ -75,6 +74,7 @@ public class LevelInterpreter {
         private int health;
 
         private List<Strategy> strategies;
+        private List<Event> events;
 
         // getters and setters
 
@@ -116,6 +116,14 @@ public class LevelInterpreter {
 
         public void setStrategies(List<Strategy> strategies) {
             this.strategies = strategies;
+        }
+
+        public List<Event> getEvents() {
+            return events;
+        }
+
+        public void setEvents(List<Event> events) {
+            this.events = events;
         }
     }
 
@@ -160,6 +168,37 @@ public class LevelInterpreter {
 
         public void setStrategy(String strategy) {
             this.strategy = strategy;
+        }
+    }
+
+    public static class Event {
+        private String start;
+        private String end;
+        private String event;
+
+        // getters and setters
+        public String getStart() {
+            return start;
+        }
+
+        public void setStart(String start) {
+            this.start = start;
+        }
+
+        public String getEnd() {
+            return end;
+        }
+
+        public void setEnd(String end) {
+            this.end = end;
+        }
+
+        public String getEvent() {
+            return event;
+        }
+
+        public void setEvent(String event) {
+            this.event = event;
         }
     }
 }

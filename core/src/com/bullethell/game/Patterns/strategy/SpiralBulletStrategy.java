@@ -4,6 +4,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.entities.Bullet;
 import com.bullethell.game.entities.Enemy;
 import com.bullethell.game.entities.Player;
+import com.bullethell.game.settings.LevelInterpreter;
+import com.bullethell.game.settings.Settings;
 import com.bullethell.game.systems.AssetHandler;
 
 import java.util.ArrayList;
@@ -12,7 +14,6 @@ import java.util.List;
 public class SpiralBulletStrategy implements BulletStrategy {
     private int numberOfBulletsPerSpiral;
     private float spiralSeparationAngle;  // Angle offset for bullet direction
-    private float bulletSpeed = 2;        // Speed of the bullets
     private float rotationSpeed = 0.5f;   // Speed at which the origins rotate
     private float currentRotation = 0f;   // Current rotation angle of the origins
 
@@ -66,6 +67,10 @@ public class SpiralBulletStrategy implements BulletStrategy {
 
     @Override
     public List<Bullet> createBullets(Enemy enemy, Player player, AssetHandler assetHandler) {
+        String bulletSprite = Settings.getInstance().getBulletSprites().get(enemy.getType());
+        LevelInterpreter levelInterpreter = Settings.getInstance().getLevelInterpreter();
+        String difficulty = levelInterpreter.getDifficulty();
+        float bulletSpeed = levelInterpreter.getDifficultySettings().get(difficulty).getBulletSpeed();
         List<Bullet> bullets = new ArrayList<>();
         float angleStep = 360.0f / numberOfBulletsPerSpiral;
         float distanceFactor = 0;  // Initial distance factor
@@ -92,7 +97,7 @@ public class SpiralBulletStrategy implements BulletStrategy {
             Vector2 bulletPosition = new Vector2(origin).add(direction.scl(distanceFactor));
             Vector2 velocity = new Vector2(direction).scl(bulletSpeed);
 
-            bullets.add(new Bullet(bulletPosition.x - Bullet.HITBOX_WIDTH / 2, bulletPosition.y - Bullet.HITBOX_HEIGHT / 2, "bullet", velocity, 25, assetHandler));
+            bullets.add(new Bullet(bulletPosition.x - Bullet.HITBOX_WIDTH / 2, bulletPosition.y - Bullet.HITBOX_HEIGHT / 2, bulletSprite, velocity, 25, assetHandler));
         }
 
         return bullets;

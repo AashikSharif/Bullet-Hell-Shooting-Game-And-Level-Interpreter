@@ -16,6 +16,7 @@ public class DefaultBulletStrategy implements BulletStrategy {
     public DefaultBulletStrategy() {}
     @Override
     public List<Bullet> createBullets(Enemy enemy, Player player, AssetHandler assetHandler) {
+        String bulletSprite = Settings.getInstance().getBulletSprites().get(enemy.getType());
         LevelInterpreter levelInterpreter = Settings.getInstance().getLevelInterpreter();
         String difficulty = levelInterpreter.getDifficulty();
         float bulletSpeed = levelInterpreter.getDifficultySettings().get(difficulty).getBulletSpeed();
@@ -30,7 +31,7 @@ public class DefaultBulletStrategy implements BulletStrategy {
 
         float bulletX = enemy.getPosition().x + (enemy.sprite.getWidth() / 2) - Bullet.HITBOX_WIDTH / 2;
         float bulletY = enemy.getPosition().y - Bullet.HITBOX_HEIGHT;
-        Bullet enemyBullet = new Bullet(bulletX, bulletY, "bullet", velocity, 25, assetHandler);
+        Bullet enemyBullet = new Bullet(bulletX, bulletY, bulletSprite, velocity, 25, assetHandler);
         bullets.add(enemyBullet);
 
         return bullets;
