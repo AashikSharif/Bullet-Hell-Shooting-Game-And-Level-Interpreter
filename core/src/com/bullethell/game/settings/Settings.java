@@ -10,6 +10,7 @@ public class Settings {
     private PlayerSettings playerSettings;
     private Map<String, String> assets;
     private LevelInterpreter levelInterpreter;
+    private int highScore;
 
     public Settings () {}
 
@@ -59,5 +60,13 @@ public class Settings {
 
     public void setLevelInterpreter(LevelInterpreter levelInterpreter) {
         this.levelInterpreter = levelInterpreter;
+    }
+
+    public int getHighScore() {
+        return highScore;
+    }
+
+    public void setHighScore(int highScore) {
+        this.highScore = highScore;
     }
 }

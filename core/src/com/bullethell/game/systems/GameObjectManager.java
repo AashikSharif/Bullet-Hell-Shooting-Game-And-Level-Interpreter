@@ -12,6 +12,7 @@ import com.bullethell.game.entities.Entity;
 import com.bullethell.game.entities.Player;
 import com.bullethell.game.screens.GameOverScreen;
 import com.bullethell.game.screens.GameWinScreen;
+import com.bullethell.game.settings.Settings;
 import com.bullethell.game.systems.enemies.EnemyBulletManager;
 import com.bullethell.game.systems.enemies.EnemyManager;
 import com.bullethell.game.systems.enemies.EnemyStrategyCheck;
@@ -44,6 +45,8 @@ public class GameObjectManager implements IObserver {
     private GameWinScreen gameWinScreen;
     public ScoreManager scoreManager;
     private EnemyStrategyCheck enemyStrategyCheck;
+    private WaveText waveText; // Add a field for WaveText
+
 
     public GameObjectManager(BulletHellGame game, Renderer renderer, AssetHandler assetHandler) {
         this.assetHandler = assetHandler;
@@ -61,6 +64,8 @@ public class GameObjectManager implements IObserver {
         spriteBatch = new SpriteBatch();
         gameSystem = new GameSystem(game, spriteBatch);
         gameWinScreen = new GameWinScreen(game);
+        this.waveText = new WaveText(); // Initialize WaveText
+
     }
 
     public void update(float deltaTime) {
@@ -77,18 +82,23 @@ public class GameObjectManager implements IObserver {
         } else {
             explosion = null;
         }
+        waveText.update(timeInSeconds); // Update wave text
+
     }
 
     public void render(float deltaTime, SpriteBatch spriteBatch) {
-        scoreManager.render(spriteBatch);
+
         playerManager.render(spriteBatch);
         enemyManager.renderEnemies(deltaTime, spriteBatch);
         playerBulletManager.render(spriteBatch);
         enemyBulletManager.render(spriteBatch);
         renderLives(spriteBatch, getPlayer().getLives());
+        scoreManager.render(spriteBatch);
         if (explosion != null && !explosion.isFinished()) {
             explosion.draw(spriteBatch);
         }
+        waveText.render(spriteBatch); // Render wave text
+
     }
 
     private void checkPlayerWon() {
@@ -97,12 +107,14 @@ public class GameObjectManager implements IObserver {
         if (timeInSeconds > TimeUtils.convertToSeconds("3:00") && playerManager.getPlayer().getLives() > 0) {
             System.out.println("Player won - Game over");
             gameWinScreen.toWinScreen();
+            scoreManager.saveHighScore(Settings.getInstance());
             soundController.stopMusic();
             soundController.playWinSound();
         } else if (timeInSeconds < TimeUtils.convertToSeconds("3:00") && timeInSeconds > TimeUtils.convertToSeconds("0:01")
                 && enemyManager.getCurrentWave() == 3 && isEnemyListEmpty() && playerManager.getPlayer().getLives() > 0) {
             System.out.println("Player won - Game over");
             gameWinScreen.toWinScreen();
+            scoreManager.saveHighScore(Settings.getInstance());
             soundController.stopMusic();
             soundController.playWinSound();
         }
@@ -158,11 +170,13 @@ public class GameObjectManager implements IObserver {
     private void playerCollidedWithEnemy() {
         playerManager.getPlayer().resetPosition();
         getEnemyBulletManager().clearBullets();
+        scoreManager.saveHighScore(Settings.getInstance());
     }
 
     private void enemyBulletHitPlayer(Event event) {
         playerManager.getPlayer().resetPosition();
         getEnemyBulletManager().clearBullets();
+
     }
 
     private void gameOver(Event event) {
@@ -171,6 +185,7 @@ public class GameObjectManager implements IObserver {
         playerBulletManager.clearBullets();
         enemyManager.getEnemyList().clear();
         timeInSeconds = 0f;
+        scoreManager.saveHighScore(Settings.getInstance());
         game.setScreen(new GameOverScreen(game));
     }
 
@@ -181,6 +196,7 @@ public class GameObjectManager implements IObserver {
         playerBulletManager.clearBullets();
         enemyManager.getEnemyList().clear();
         timeInSeconds = 0f;
+        scoreManager.saveHighScore(Settings.getInstance());
 
     }
 

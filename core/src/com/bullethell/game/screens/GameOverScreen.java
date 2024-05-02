@@ -14,6 +14,8 @@ import com.bullethell.game.settings.PlayerSettings;
 import com.bullethell.game.settings.Settings;
 import com.bullethell.game.utils.JsonUtil;
 
+import java.io.FileNotFoundException;
+
 public class GameOverScreen implements Screen {
     private final BulletHellGame game;
     private final Texture background;

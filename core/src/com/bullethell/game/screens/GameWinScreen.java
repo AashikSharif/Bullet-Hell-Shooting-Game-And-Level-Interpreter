@@ -12,6 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.bullethell.game.BulletHellGame;
 
+import java.io.FileNotFoundException;
+
 public class GameWinScreen implements Screen {
     private final BulletHellGame game;
     private final Texture background;
@@ -38,7 +40,9 @@ public class GameWinScreen implements Screen {
         backToMenu.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new MainMenuScreen(game));
+
+                    game.setScreen(new MainMenuScreen(game));
+
             }
         });
 

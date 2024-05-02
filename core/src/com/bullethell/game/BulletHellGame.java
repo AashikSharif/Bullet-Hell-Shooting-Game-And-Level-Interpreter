@@ -6,6 +6,8 @@ import com.bullethell.game.screens.MainMenuScreen;
 import com.bullethell.game.settings.Settings;
 import com.bullethell.game.utils.JsonUtil;
 
+import java.io.FileNotFoundException;
+
 public class BulletHellGame extends Game {
     public SpriteBatch batch;
 
@@ -15,7 +17,9 @@ public class BulletHellGame extends Game {
     public void create() {
         preflight();
         batch = new SpriteBatch();
-        this.setScreen(new MainMenuScreen(this));
+
+            this.setScreen(new MainMenuScreen(this));
+
 
     }
 
