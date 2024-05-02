@@ -17,6 +17,7 @@ import com.bullethell.game.settings.Settings;
 import com.bullethell.game.systems.SoundManager;
 import com.bullethell.game.utils.JsonUtil;
 
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 
 public class OptionsScreen implements Screen {
@@ -72,6 +73,7 @@ public class OptionsScreen implements Screen {
                 saveControlMappings();
                 game.setScreen(new MainMenuScreen(game));
 
+
                 soundController.stopMusic();
                 soundManager.dispose();
             }
@@ -84,7 +86,12 @@ public class OptionsScreen implements Screen {
         backToMenu.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                toMainMenu();
+                try {
+                    toMainMenu();
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+
             }
         });
 
@@ -192,7 +199,7 @@ public class OptionsScreen implements Screen {
         jsonUtil.save(settings, "settings/settings.json");
     }
 
-    private void toMainMenu(){
+    private void toMainMenu() throws FileNotFoundException {
 
         game.setScreen(new MainMenuScreen(game));
         soundManager.stopMusic();

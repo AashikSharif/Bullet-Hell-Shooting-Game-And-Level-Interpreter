@@ -18,5 +18,6 @@ public class GameEventManager {
     public void update(float deltaTime, AssetHandler assetHandler) {
         playerController.listen(assetHandler, deltaTime);
         collisionDetection.checkCollisions();
+        
     }
 }
