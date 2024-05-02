@@ -9,7 +9,8 @@
     "moveRight": "Right",
     "slowMode": "L-Shift",
     "shoot": "Space",
-    "cheat": "0"
+    "cheat": "0",
+    "bomb": "B"
   },
   "assets": {
     "player": "player.png",
@@ -19,6 +20,7 @@
     "finalBoss": "finalBoss.png",
     "background": "space_background2.png",
     "bullet": "bullet.png",
+    "bomb":"bomb.png",
     "lives": "life_star.png",
     "explosion": "explosion.png"
   },

@@ -8,17 +8,23 @@ import com.bullethell.game.entities.Player;
 import com.bullethell.game.settings.PlayerSettings;
 import com.bullethell.game.systems.AssetHandler;
 import com.bullethell.game.utils.EdgeDetector;
+import com.bullethell.game.entities.BombBullet;
+import com.bullethell.game.systems.player.PlayerBulletManager;
 
 import java.util.List;
 
 public class PlayerController {
     Player player;
     PlayerSettings playerSettings;
+    private PlayerBulletManager playerBulletManager;
+
     EdgeDetector edgeDetector;
     boolean isCheat = false;
     private float coolDown = 0;
     private float timeSinceLastShot = 0;
     private float timeSinceKeyPress = 60;
+    private boolean bombUsed = false;
+
     public PlayerController (Player player, PlayerSettings playerSettings) {
         this.player = player;
         this.playerSettings = playerSettings;
@@ -65,6 +71,11 @@ public class PlayerController {
         if (Gdx.input.isKeyPressed(Input.Keys.valueOf(playerSettings.getShoot())) && timeSinceLastShot >= coolDown) {
             timeSinceLastShot = 0;
             player.shoot();
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.B) && !bombUsed && player.getLives() == 1 && timeSinceLastShot >= coolDown) {
+            timeSinceLastShot = 0;
+            player.shootBomb();
+            player.setBombUsed(true);  // Ensure the bomb can only be used once
         }
 
         // edge detection
