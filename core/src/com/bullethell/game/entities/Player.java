@@ -18,11 +18,17 @@ public class Player extends Entity implements IControllable, IShootable, IObserv
     private static final float HITBOX_HEIGHT = 30;
     public int damage;
     private int lives;
+    private boolean bombUsed = false;
+    private AssetHandler assetHandler;
+    private int bombsUsed;
+    private static final int MAX_BOMBS = 3;
+
     private static Player player;
     private Player(float x, float y, AssetHandler assetHandler, int damage, int lives) {
         super(x, y, "player", assetHandler);
         this.lives = lives; //Initialize the lives of the player
         this.damage = damage;
+        this.bombsUsed = 0;
     }
 
     public static Player getInstance(float x, float y, AssetHandler assetHandler, int damage, int lives) //Singleton class implementation
@@ -35,10 +41,26 @@ public class Player extends Entity implements IControllable, IShootable, IObserv
     public void update() {
         super.update();
     }
-
+    public boolean canUseBomb() {
+        return player.getLives() == 1 && bombsUsed < MAX_BOMBS;
+    }
+    public void useBomb() {
+        if (canUseBomb()) {
+            bombsUsed++;
+            System.out.println("Bomb used: " + bombsUsed);
+        } else {
+            System.out.println("Cannot use bomb. Either maximum usage reached or health not at 1.");
+        }
+    }
     @Override
     public void shoot() {
         notifyObservers(new Event(Event.Type.PLAYER_SHOOT, this));
+    }
+    public void shootBomb() {
+        notifyObservers(new Event(Event.Type.PLAYER_SHOOT_BOMB, this));
+    }
+    public void setBombUsed(boolean bombUsed) {
+        this.bombUsed = bombUsed;
     }
     @Override
     public void moveUp(float speedFactor) {

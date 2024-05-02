@@ -9,6 +9,7 @@ public class Event {
         ENEMY_BULLET_HIT_PLAYER,
         GAME_OVER,
         EXPLOSION,
+        PLAYER_SHOOT_BOMB
     }
 
     private Type type;

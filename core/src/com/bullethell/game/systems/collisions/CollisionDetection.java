@@ -8,6 +8,7 @@ import com.bullethell.game.entities.Player;
 import com.bullethell.game.systems.GameObjectManager;
 import com.bullethell.game.systems.score.ScoreManager;
 import com.bullethell.game.utils.Event;
+import com.bullethell.game.entities.BombBullet;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,6 +30,7 @@ public class CollisionDetection implements IObservable {
         checkPlayerCollision();
         checkBulletCollision();
         checkEnemyBulletPlayerCollision();
+        //checkBombCollisions();
     }
 
     // Player collision with Enemy
@@ -106,6 +108,48 @@ public class CollisionDetection implements IObservable {
         }
 
     }
+    private void checkBombCollisions() {
+        List<BombBullet> bombs = gom.getPlayerBulletManager().getBombs();
+        List<Enemy> allEnemies = new ArrayList<>();
+        gom.getEnemyList().values().forEach(allEnemies::addAll);
+        List<Bullet> enemyBullets = gom.getEnemyBulletManager().getBullets();
+
+        for (BombBullet bomb : bombs) {
+            checkBombEnemyCollision(bomb, allEnemies);
+            checkBombEnemyBulletCollision(bomb, enemyBullets);
+        }
+    }
+
+    private void checkBombEnemyCollision(BombBullet bomb, List<Enemy> enemies) {
+        Iterator<Enemy> it = enemies.iterator();
+        while (it.hasNext()) {
+            Enemy enemy = it.next();
+            if (bomb.getHitbox().overlaps(enemy.getHitbox())) {
+                System.out.println("Bomb hit enemy: " + enemy);
+                enemy.enemyHit(150); //reducing  enemy health
+                System.out.println("Bullet hit detected! - " + enemy.getHealth());
+                if (enemy.getHealth() <= 0) {
+                    System.out.println("Enemy health is 0");
+                    notifyObservers(new Event(Event.Type.EXPLOSION, enemy));
+                    enemy.removeObserver(gom);
+                    it.remove();
+                    scoreManager.increaseScore(enemy.getKillBonusScore());
+                }
+            }
+        }
+    }
+
+    private void checkBombEnemyBulletCollision(BombBullet bomb, List<Bullet> enemyBullets) {
+        Iterator<Bullet> it = enemyBullets.iterator();
+        while (it.hasNext()) {
+            Bullet enemyBullet = it.next();
+            if (bomb.getHitbox().overlaps(enemyBullet.getHitbox())) {
+                it.remove();
+                System.out.println("Bomb destroyed enemy bullet: " + enemyBullet);
+            }
+        }
+    }
+
 
     private void checkGameOver(Event.Type type) {
         Player player = gom.getPlayer();
