@@ -28,17 +28,6 @@
   },
   "levelInterpreter": {
     "difficulty": "easy",
-    "difficultySettings": {
-      "easy": {
-        "bulletSpeed": 4
-      },
-      "medium": {
-        "bulletSpeed": 8
-      },
-      "hard": {
-        "bulletSpeed": 10
-      }
-    },
     "waves": [
       {
         "start": "0",
@@ -146,7 +135,18 @@
           }
         ]
       }
-    ]
+    ],
+    "difficultySettings": {
+      "easy": {
+        "bulletSpeed": 4
+      },
+      "medium": {
+        "bulletSpeed": 8
+      },
+      "hard": {
+        "bulletSpeed": 10
+      }
+    }
   },
   "bulletSprites": {
     "gruntA": "bullet_1",
@@ -155,5 +155,5 @@
     "finalBoss": "bullet_4",
     "player": "bullet"
   },
-  "highScore": 0
+  "highScore": 42800
 }
