@@ -207,6 +207,10 @@ public class GameObjectManager implements IObserver {
         getPlayerBulletManager().addBullet(event);
     }
 
+    private void addPlayerBomb(Event event) {
+        getPlayerBulletManager().addBomb(event);
+    }
+
     private void addEnemyBullet(Event event) {
         getEnemyBulletManager().addBullet(event);
     }
@@ -274,6 +278,10 @@ public class GameObjectManager implements IObserver {
         switch (event.getType()) {
             case PLAYER_SHOOT:
                 addPlayerBullet(event);
+                soundController.playPlayerShootSound();
+                break;
+            case PLAYER_SHOOT_BOMB:
+                addPlayerBomb(event);
                 soundController.playPlayerShootSound();
                 break;
             case ENEMY_SHOOT:

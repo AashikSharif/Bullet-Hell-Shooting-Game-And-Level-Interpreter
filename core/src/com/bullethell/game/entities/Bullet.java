@@ -7,6 +7,7 @@ import com.bullethell.game.utils.Event;
 
 public class Bullet extends Entity {
     private final Vector2 velocity;
+    private boolean expired = false;
     private final int damage;
 
     public static final float HITBOX_WIDTH = 30;
@@ -44,5 +45,12 @@ public class Bullet extends Entity {
     @Override
     public void notifyObservers(Event event) {
 
+    }
+    public boolean isExpired() {
+        return expired;
+    }
+
+    public void setExpired(boolean expired) {
+        this.expired = expired;
     }
 }

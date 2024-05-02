@@ -28,6 +28,9 @@ public abstract class Entity implements IObservable {
         if (entity.equals("player")) {
             hbW = this.sprite.getWidth() / 5;
             hbH = this.sprite.getHeight() / 5;
+        } else if (entity.equals("bomb")) {
+            hbW = 251;
+            hbH = 400;
         } else {
             hbW = this.sprite.getWidth();
             hbH = this.sprite.getHeight();

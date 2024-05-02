@@ -16,7 +16,6 @@ import com.bullethell.game.settings.PlayerSettings;
 import com.bullethell.game.settings.Settings;
 import com.bullethell.game.systems.SoundManager;
 import com.bullethell.game.utils.JsonUtil;
-
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 
