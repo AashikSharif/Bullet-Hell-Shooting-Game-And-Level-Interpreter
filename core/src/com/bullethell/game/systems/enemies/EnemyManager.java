@@ -1,5 +1,9 @@
 package com.bullethell.game.systems.enemies;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.bullethell.game.Patterns.observer.IObserver;
@@ -29,14 +33,17 @@ public class EnemyManager {
     private AssetHandler assetHandler;
     boolean isCollided = false;
     int time = 3, frames = 60, counter=0;
+    private EnemyBulletManager enemyBulletManager;
 
-    public EnemyManager(AssetHandler assetHandler, Renderer renderer) {
+    public EnemyManager(AssetHandler assetHandler, Renderer renderer, EnemyBulletManager enemyBulletManager) {
         this.renderer = renderer;
         this.enemyList = new HashMap<>();
         this.assetHandler = assetHandler;
+        this.enemyBulletManager = enemyBulletManager;
         this.movementController = new MovementController();
         this.levelInterpreter = Settings.getInstance().getLevelInterpreter();
         this.enemySpawner = new EnemySpawner(levelInterpreter);
+
     }
 
     public Map<String, ArrayList<Enemy>> getEnemyList() {
@@ -61,13 +68,16 @@ public class EnemyManager {
             if (seconds >= TimeUtils.convertToSeconds(wave.getStart()) && seconds <= TimeUtils.convertToSeconds(wave.getEnd())) {
                 if (currentWave != i) {
                     System.out.println("Spawning for wave" + i);
+
                     spawnEnemies(wave, assetHandler, observer);
                     currentWave = i;
+                    enemyBulletManager.clearBullets();
                     break;
                 }
             }
         }
     }
+
 
     private void removeOldEnemies(float seconds) {
         for (int i = 0; i < levelInterpreter.getWaves().size(); i++) {
@@ -105,8 +115,8 @@ public class EnemyManager {
     }
 
     public void renderEnemies(float deltaTime, SpriteBatch spriteBatch) {
-        if (currentWave != -1) {
-            LevelInterpreter.Wave wave = levelInterpreter.getWaves().get(currentWave);
+        for (int i = 0; i < levelInterpreter.getWaves().size(); i++) {
+            LevelInterpreter.Wave wave = levelInterpreter.getWaves().get(i);
             for (LevelInterpreter.Enemy enemy : wave.getEnemies()) {
                 String type = enemy.getType();
                 ArrayList<Enemy> enemies = enemyList.get(type);
@@ -119,7 +129,6 @@ public class EnemyManager {
             }
         }
     }
-
     private void shoot(float deltaTime, Player player) {
         for (ArrayList<Enemy> enemies : enemyList.values()) {
             for (Enemy enemy : enemies) {

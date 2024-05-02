@@ -25,5 +25,6 @@ public class GameEventManager {
         gom.checkInversion(deltaTime);
         playerController.listen(assetHandler, deltaTime);
         collisionDetection.checkCollisions();
+        
     }
 }

@@ -154,5 +154,6 @@
     "midBoss": "bullet_3",
     "finalBoss": "bullet_4",
     "player": "bullet"
-  }
+  },
+  "highScore": 0
 }

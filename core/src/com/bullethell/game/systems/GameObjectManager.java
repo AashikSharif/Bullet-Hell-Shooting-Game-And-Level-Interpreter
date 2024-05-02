@@ -3,7 +3,6 @@ package com.bullethell.game.systems;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Matrix4;
 import com.bullethell.game.BulletHellGame;
 import com.bullethell.game.Patterns.observer.IObservable;
 import com.bullethell.game.Patterns.observer.IObserver;
@@ -52,14 +51,16 @@ public class GameObjectManager implements IObserver {
     private EnemyStrategyCheck enemyStrategyCheck;
     private BaseInversion inversion;
     private float eventEndTime = 0f;
+    private WaveText waveText;
 
     public GameObjectManager(BulletHellGame game, Renderer renderer, AssetHandler assetHandler) {
         this.assetHandler = assetHandler;
         soundManager = new SoundManager();
         soundController = new SoundController(soundManager);
-        enemyManager = new EnemyManager(assetHandler, renderer);
-        playerManager = new PlayerManager(assetHandler, renderer, this);
         enemyBulletManager = new EnemyBulletManager(assetHandler, renderer);
+        enemyManager = new EnemyManager(assetHandler, renderer, enemyBulletManager);
+        playerManager = new PlayerManager(assetHandler, renderer, this);
+
         playerBulletManager = new PlayerBulletManager(assetHandler, renderer);
         this.playerLives = assetHandler.getAssetTexture("lives");
         this.scoreManager = new ScoreManager();
@@ -68,6 +69,8 @@ public class GameObjectManager implements IObserver {
         spriteBatch = new SpriteBatch();
         gameSystem = new GameSystem(game, spriteBatch);
         gameWinScreen = new GameWinScreen(game);
+        this.waveText = new WaveText();
+
     }
 
     public void update(float deltaTime) {
@@ -83,12 +86,15 @@ public class GameObjectManager implements IObserver {
         } else {
             explosion = null;
         }
+        waveText.update(timeInSeconds);
+
     }
 
     public void render(float deltaTime, SpriteBatch spriteBatch) {
         if (inversion != null) {
             inversion.applyInversion(spriteBatch);
         }
+
         playerManager.render(spriteBatch);
         enemyManager.renderEnemies(deltaTime, spriteBatch);
         playerBulletManager.render(spriteBatch);
@@ -102,9 +108,9 @@ public class GameObjectManager implements IObserver {
             inversion.resetInversion(spriteBatch);
         }
 
-
         renderLives(spriteBatch, getPlayer().getLives());
         scoreManager.render(spriteBatch);
+        waveText.render(spriteBatch);
     }
 
     public void checkInversion(float deltaTime) {
@@ -163,12 +169,14 @@ public class GameObjectManager implements IObserver {
         if (timeInSeconds > TimeUtils.convertToSeconds("3:00") && playerManager.getPlayer().getLives() > 0) {
             System.out.println("Player won - Game over");
             gameWinScreen.toWinScreen();
+            scoreManager.saveHighScore(Settings.getInstance());
             soundController.stopMusic();
             soundController.playWinSound();
         } else if (timeInSeconds < TimeUtils.convertToSeconds("3:00") && timeInSeconds > TimeUtils.convertToSeconds("0:01")
                 && enemyManager.getCurrentWave() == 3 && isEnemyListEmpty() && playerManager.getPlayer().getLives() > 0) {
             System.out.println("Player won - Game over");
             gameWinScreen.toWinScreen();
+            scoreManager.saveHighScore(Settings.getInstance());
             soundController.stopMusic();
             soundController.playWinSound();
         }
@@ -224,11 +232,13 @@ public class GameObjectManager implements IObserver {
     private void playerCollidedWithEnemy() {
         playerManager.getPlayer().resetPosition();
         getEnemyBulletManager().clearBullets();
+        scoreManager.saveHighScore(Settings.getInstance());
     }
 
     private void enemyBulletHitPlayer(Event event) {
         playerManager.getPlayer().resetPosition();
         getEnemyBulletManager().clearBullets();
+
     }
 
     private void gameOver(Event event) {
@@ -237,6 +247,7 @@ public class GameObjectManager implements IObserver {
         playerBulletManager.clearBullets();
         enemyManager.getEnemyList().clear();
         timeInSeconds = 0f;
+        scoreManager.saveHighScore(Settings.getInstance());
         game.setScreen(new GameOverScreen(game));
     }
 
@@ -247,6 +258,7 @@ public class GameObjectManager implements IObserver {
         playerBulletManager.clearBullets();
         enemyManager.getEnemyList().clear();
         timeInSeconds = 0f;
+        scoreManager.saveHighScore(Settings.getInstance());
 
     }
 
