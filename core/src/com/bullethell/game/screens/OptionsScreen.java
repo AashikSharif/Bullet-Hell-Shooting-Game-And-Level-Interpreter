@@ -11,11 +11,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.bullethell.game.BulletHellGame;
-import com.bullethell.game.controllers.SoundController;
 import com.bullethell.game.settings.PlayerSettings;
 import com.bullethell.game.settings.Settings;
-import com.bullethell.game.systems.SoundManager;
 import com.bullethell.game.utils.JsonUtil;
+import jdk.tools.jmod.Main;
 
 import java.util.HashMap;
 
@@ -26,9 +25,6 @@ public class OptionsScreen implements Screen {
     private final Stage stage;
     private final Skin skin;
     private Settings settings;
-    private SoundManager soundManager = new SoundManager();
-    private SoundController soundcontroller = new SoundController(soundManager);;
-
 
     private final HashMap<String, String> controlMappings = new HashMap<>();
 
@@ -40,9 +36,9 @@ public class OptionsScreen implements Screen {
 
         Gdx.input.setInputProcessor(stage);
 
-        loadMenu();
         loadSettings();
         initializeControlMappings();
+        loadMenu();
         displayKeyBinds();
     }
 
@@ -73,10 +69,6 @@ public class OptionsScreen implements Screen {
                 // Save controlMappings to a file
                 saveControlMappings();
                 game.setScreen(new MainMenuScreen(game));
-
-                soundcontroller.stopMusic();
-                soundManager.dispose();
-
             }
         });
 
@@ -110,21 +102,30 @@ public class OptionsScreen implements Screen {
         stage.addActor(button);
     }
     private void createTextField(final String fieldName, float x, float y, String key){
-        TextField field = new TextField(fieldName,skin);
-        int constantSize = 50;
-        field.setSize(constantSize*4,constantSize);
-        field.setPosition(x,y);
+        TextField field = new TextField("", skin);
+        field.setName(fieldName + "Field");  // Set name for later retrieval
+        field.setSize(200, 50);
+        field.setPosition(x, y);
         field.setText(controlMappings.get(key));
 
         stage.addActor(field);
     }
+
 
     private void captureKeyInput(final String controlName) {
         final InputProcessor originalInputProcessor = Gdx.input.getInputProcessor();
         InputProcessor keyCaptureProcessor = new InputAdapter() {
             @Override
             public boolean keyUp(int keycode) {
-                controlMappings.put(controlName, Input.Keys.toString(keycode));
+                String keyName = Input.Keys.toString(keycode);
+                controlMappings.put(controlName, keyName);
+
+                // Update the TextField directly
+                TextField field = (TextField) stage.getRoot().findActor(controlName + "Field");
+                if (field != null) {
+                    field.setText(keyName);
+                }
+
                 Gdx.app.log("Control Mappings", controlMappings.toString());
                 Gdx.input.setInputProcessor(originalInputProcessor);
                 return true;
@@ -132,12 +133,12 @@ public class OptionsScreen implements Screen {
         };
         Gdx.input.setInputProcessor(keyCaptureProcessor);
     }
+
     private void loadSettings() {
         JsonUtil jsonUtil = new JsonUtil();
         settings = jsonUtil.deserializeJson("settings/settings.json", Settings.class);
     }
     private void saveControlMappings() {
-        // Implement saving logic here, potentially using Json to serialize controlMappings
         PlayerSettings ps = settings.getPlayerSettings();
         ps.setMoveUp(controlMappings.get("Up"));
         ps.setMoveDown(controlMappings.get("Down"));
@@ -146,9 +147,6 @@ public class OptionsScreen implements Screen {
         ps.setShoot(controlMappings.get("shoot"));
         ps.setNormalSpeed(Float.parseFloat(controlMappings.get("normalSpeed")));
         ps.setSlowSpeed(Float.parseFloat(controlMappings.get("slowSpeed")));
-//        ps.setNormalSpeed(settings.getPlayerSettings().getNormalSpeed());
-//        ps.setSlowSpeed(settings.getPlayerSettings().getSlowSpeed());
-//        ps.setShoot(settings.getPlayerSettings().getShoot());
         settings.setPlayerSettings(ps);
 
         saveSettings(settings);
@@ -169,9 +167,19 @@ public class OptionsScreen implements Screen {
     }
 
     private void displayKeyBinds(){
-
+        updateTextField("Up");
+        updateTextField("Down");
+        updateTextField("Left");
+        updateTextField("Right");
+        updateTextField("Slow Mode");
     }
 
+    private void updateTextField(String controlName) {
+        TextField field = (TextField) stage.getRoot().findActor(controlName + "Field");
+        if (field != null) {
+            field.setText(controlMappings.getOrDefault(controlName, ""));
+        }
+    }
 
 
     private void saveSettings(Settings settings) {
@@ -181,8 +189,6 @@ public class OptionsScreen implements Screen {
 
     private void toMainMenu(){
         game.setScreen(new MainMenuScreen(game));
-        soundcontroller.stopMusic();
-        soundManager.dispose();
     }
 
     @Override
