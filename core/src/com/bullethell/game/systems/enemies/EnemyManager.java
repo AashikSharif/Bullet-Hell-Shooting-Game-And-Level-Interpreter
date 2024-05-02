@@ -113,7 +113,7 @@ public class EnemyManager {
 
                 if (enemies != null && !enemies.isEmpty()) {
                     for (Enemy e : enemies) {
-                        renderer.renderEntity(spriteBatch, e, true);
+                        renderer.renderEntity(spriteBatch, e, false);
                     }
                 }
             }

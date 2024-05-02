@@ -13,12 +13,16 @@
   },
   "assets": {
     "player": "player.png",
-    "gruntA": "typeA.png",
-    "gruntB": "typeB.png",
-    "midBoss": "midBoss2.png",
-    "finalBoss": "finalBoss.png",
+    "gruntA": "gA.png",
+    "gruntB": "gB.png",
+    "midBoss": "midboss.png",
+    "finalBoss": "fB.png",
     "background": "space_background2.png",
     "bullet": "bullet.png",
+    "bullet_1": "b1.png",
+    "bullet_2": "b2.png",
+    "bullet_3": "b3.png",
+    "bullet_4": "b4.png",
     "lives": "life_star.png",
     "explosion": "explosion.png"
   },
@@ -26,13 +30,13 @@
     "difficulty": "easy",
     "difficultySettings": {
       "easy": {
-        "bulletSpeed": 3
+        "bulletSpeed": 4
       },
       "medium": {
-        "bulletSpeed": 6
+        "bulletSpeed": 8
       },
       "hard": {
-        "bulletSpeed": 9
+        "bulletSpeed": 10
       }
     },
     "waves": [
@@ -42,16 +46,17 @@
         "enemies": [
           {
             "type": "gruntA",
-            "count": 1,
+            "count": 15,
             "lives": 1,
             "health": 50,
             "strategies": [
               {
                 "start": "0",
                 "end": "0:48",
-                "strategy": "spiral"
+                "strategy": "default"
               }
-            ]
+            ],
+            "events": []
           }
         ]
       },
@@ -75,7 +80,8 @@
                 "end": "1:15",
                 "strategy": "star"
               }
-            ]
+            ],
+            "events": []
           }
         ]
       },
@@ -94,7 +100,8 @@
                 "end": "1:32",
                 "strategy": "default"
               }
-            ]
+            ],
+            "events": []
           }
         ]
       },
@@ -123,10 +130,29 @@
                 "end": "3:00",
                 "strategy": "fib"
               }
+            ],
+            "events": [
+              {
+                "start": "1:45",
+                "end": "2:00",
+                "event": "horizontal-invert"
+              },
+              {
+                "start": "2:15",
+                "end": "2:30",
+                "event": "vertical-invert"
+              }
             ]
           }
         ]
       }
     ]
+  },
+  "bulletSprites": {
+    "gruntA": "bullet_1",
+    "gruntB": "bullet_2",
+    "midBoss": "bullet_3",
+    "finalBoss": "bullet_4",
+    "player": "bullet"
   }
 }

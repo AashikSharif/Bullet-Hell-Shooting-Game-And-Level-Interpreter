@@ -20,6 +20,7 @@ public class RotateBulletStrategy  implements BulletStrategy{
         this.timeDelay = timeDelay;
     }
     public List<Bullet> createBullets(Enemy enemy, Player player, AssetHandler assetHandler) {
+        String bulletSprite = Settings.getInstance().getBulletSprites().get(enemy.getType());
         LevelInterpreter levelInterpreter = Settings.getInstance().getLevelInterpreter();
         String difficulty = levelInterpreter.getDifficulty();
         float bulletSpeed = levelInterpreter.getDifficultySettings().get(difficulty).getBulletSpeed();
@@ -43,7 +44,7 @@ public class RotateBulletStrategy  implements BulletStrategy{
                     player.getPosition().y + player.sprite.getHeight() / 2 - bulletY).nor();
             Vector2 velocity = direction.scl(bulletSpeed);
 
-            bullets.add(new Bullet(bulletX, bulletY, "bullet", velocity, 25, assetHandler));
+            bullets.add(new Bullet(bulletX, bulletY, bulletSprite, velocity, 25, assetHandler));
 
         }
 

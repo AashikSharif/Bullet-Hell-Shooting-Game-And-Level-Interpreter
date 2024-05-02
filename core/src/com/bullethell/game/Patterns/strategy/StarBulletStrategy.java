@@ -22,6 +22,7 @@ public class StarBulletStrategy implements BulletStrategy {
 
     @Override
     public List<Bullet> createBullets(Enemy enemy, Player player, AssetHandler assetHandler) {
+        String bulletSprite = Settings.getInstance().getBulletSprites().get(enemy.getType());
         LevelInterpreter levelInterpreter = Settings.getInstance().getLevelInterpreter();
         String difficulty = levelInterpreter.getDifficulty();
         float bulletSpeed = levelInterpreter.getDifficultySettings().get(difficulty).getBulletSpeed();
@@ -43,7 +44,7 @@ public class StarBulletStrategy implements BulletStrategy {
             float bulletX = enemy.getPosition().x + enemy.sprite.getWidth() / 2 - Bullet.HITBOX_WIDTH / 2;
             float bulletY = enemy.getPosition().y + enemy.sprite.getHeight() / 2 - Bullet.HITBOX_HEIGHT / 2;
 
-            bullets.add(new Bullet(bulletX, bulletY, "bullet", velocity, 25, assetHandler));
+            bullets.add(new Bullet(bulletX, bulletY, bulletSprite, velocity, 25, assetHandler));
 
             currentAngle += angleBetweenArms;
         }

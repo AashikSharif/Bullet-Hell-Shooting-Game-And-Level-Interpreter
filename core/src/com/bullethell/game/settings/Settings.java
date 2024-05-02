@@ -10,6 +10,7 @@ public class Settings {
     private PlayerSettings playerSettings;
     private Map<String, String> assets;
     private LevelInterpreter levelInterpreter;
+    private Map<String, String> bulletSprites;
 
     public Settings () {}
 
@@ -59,5 +60,13 @@ public class Settings {
 
     public void setLevelInterpreter(LevelInterpreter levelInterpreter) {
         this.levelInterpreter = levelInterpreter;
+    }
+
+    public Map<String, String> getBulletSprites() {
+        return bulletSprites;
+    }
+
+    public void setBulletSprites(Map<String, String> bulletSprites) {
+        this.bulletSprites = bulletSprites;
     }
 }

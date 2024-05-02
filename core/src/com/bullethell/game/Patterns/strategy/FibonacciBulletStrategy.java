@@ -52,6 +52,7 @@ public class FibonacciBulletStrategy implements BulletStrategy {
 //    }
 @Override
 public List<Bullet> createBullets(Enemy enemy, Player player, AssetHandler assetHandler) {
+    String bulletSprite = Settings.getInstance().getBulletSprites().get(enemy.getType());
     LevelInterpreter levelInterpreter = Settings.getInstance().getLevelInterpreter();
     String difficulty = levelInterpreter.getDifficulty();
     float bulletSpeed = levelInterpreter.getDifficultySettings().get(difficulty).getBulletSpeed();
@@ -79,7 +80,7 @@ public List<Bullet> createBullets(Enemy enemy, Player player, AssetHandler asset
         Vector2 velocity = direction.scl(bulletSpeed);
 
         // Create bullet at modified position
-        Bullet bullet = new Bullet(position.x - Bullet.HITBOX_WIDTH / 2, position.y - Bullet.HITBOX_HEIGHT / 2, "bullet", velocity, 25, assetHandler);
+        Bullet bullet = new Bullet(position.x - Bullet.HITBOX_WIDTH / 2, position.y - Bullet.HITBOX_HEIGHT / 2, bulletSprite, velocity, 25, assetHandler);
         bullets.add(bullet);
 
         initialAngle += angle;
