@@ -49,9 +49,10 @@ public class GameObjectManager implements IObserver {
         this.assetHandler = assetHandler;
         soundManager = new SoundManager();
         soundController = new SoundController(soundManager);
-        enemyManager = new EnemyManager(assetHandler, renderer);
-        playerManager = new PlayerManager(assetHandler, renderer, this);
         enemyBulletManager = new EnemyBulletManager(assetHandler, renderer);
+        enemyManager = new EnemyManager(assetHandler, renderer, enemyBulletManager);
+        playerManager = new PlayerManager(assetHandler, renderer, this);
+
         playerBulletManager = new PlayerBulletManager(assetHandler, renderer);
         this.playerLives = assetHandler.getAssetTexture("lives");
         this.scoreManager = new ScoreManager();

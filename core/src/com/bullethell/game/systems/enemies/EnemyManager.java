@@ -29,14 +29,17 @@ public class EnemyManager {
     private AssetHandler assetHandler;
     boolean isCollided = false;
     int time = 3, frames = 60, counter=0;
+    private EnemyBulletManager enemyBulletManager;
 
-    public EnemyManager(AssetHandler assetHandler, Renderer renderer) {
+    public EnemyManager(AssetHandler assetHandler, Renderer renderer, EnemyBulletManager enemyBulletManager) {
         this.renderer = renderer;
         this.enemyList = new HashMap<>();
         this.assetHandler = assetHandler;
+        this.enemyBulletManager = enemyBulletManager;
         this.movementController = new MovementController();
         this.levelInterpreter = Settings.getInstance().getLevelInterpreter();
         this.enemySpawner = new EnemySpawner(levelInterpreter);
+
     }
 
     public Map<String, ArrayList<Enemy>> getEnemyList() {
@@ -63,6 +66,7 @@ public class EnemyManager {
                     System.out.println("Spawning for wave" + i);
                     spawnEnemies(wave, assetHandler, observer);
                     currentWave = i;
+                    enemyBulletManager.clearBullets();
                     break;
                 }
             }

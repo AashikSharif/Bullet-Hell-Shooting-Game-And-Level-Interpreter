@@ -18,6 +18,7 @@ public class PlayerController {
     boolean isCheat = false;
     private float coolDown = 0;
     private float timeSinceLastShot = 0;
+    private float timeSinceKeyPress = 60;
     public PlayerController (Player player, PlayerSettings playerSettings) {
         this.player = player;
         this.playerSettings = playerSettings;
@@ -32,11 +33,14 @@ public class PlayerController {
         player.slowMode(isSlow);
         float speedFactor = isSlow ? playerSettings.getSlowSpeed() : playerSettings.getNormalSpeed();
         boolean Cheat = Gdx.input.isKeyPressed(Input.Keys.valueOf(playerSettings.getCheatMode()));
-        if (Cheat){
-            isCheat = !isCheat;
-            System.out.println("Cheat activated: " +  isCheat);
-            player.cheatMode(isCheat);
-        }
+        timeSinceKeyPress++;
+            if(timeSinceKeyPress>60 && Cheat)
+            {
+                isCheat = !isCheat;
+                System.out.println("Cheat activated: " +  isCheat);
+                player.cheatMode(isCheat);
+                timeSinceKeyPress=0;
+            }
         if(player.isCheatMode()){
             player.setLives(5);
         }
