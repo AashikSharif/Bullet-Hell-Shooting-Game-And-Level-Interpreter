@@ -11,10 +11,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.bullethell.game.BulletHellGame;
+import com.bullethell.game.controllers.SoundController;
 import com.bullethell.game.settings.PlayerSettings;
 import com.bullethell.game.settings.Settings;
+import com.bullethell.game.systems.SoundManager;
 import com.bullethell.game.utils.JsonUtil;
-import jdk.tools.jmod.Main;
 
 import java.util.HashMap;
 
@@ -25,6 +26,8 @@ public class OptionsScreen implements Screen {
     private final Stage stage;
     private final Skin skin;
     private Settings settings;
+    private SoundManager soundManager = new SoundManager();
+    private SoundController soundController = new SoundController(soundManager);
 
     private final HashMap<String, String> controlMappings = new HashMap<>();
 
@@ -44,7 +47,6 @@ public class OptionsScreen implements Screen {
 
 
     private void loadMenu() {
-        float windowHeight = Gdx.graphics.getHeight();
         float windowWidth = Gdx.graphics.getWidth();
 
         createControlButton("Up", 200, 600);
@@ -69,6 +71,9 @@ public class OptionsScreen implements Screen {
                 // Save controlMappings to a file
                 saveControlMappings();
                 game.setScreen(new MainMenuScreen(game));
+
+                soundController.stopMusic();
+                soundManager.dispose();
             }
         });
 
@@ -121,7 +126,7 @@ public class OptionsScreen implements Screen {
                 controlMappings.put(controlName, keyName);
 
                 // Update the TextField directly
-                TextField field = (TextField) stage.getRoot().findActor(controlName + "Field");
+                TextField field = stage.getRoot().findActor(controlName + "Field");
                 if (field != null) {
                     field.setText(keyName);
                 }
@@ -188,7 +193,10 @@ public class OptionsScreen implements Screen {
     }
 
     private void toMainMenu(){
+
         game.setScreen(new MainMenuScreen(game));
+        soundManager.stopMusic();
+        soundManager.dispose();
     }
 
     @Override
